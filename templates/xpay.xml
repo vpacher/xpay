@@ -1,0 +1,60 @@
+<RequestBlock Version="3.51">
+    <Request Type="ST3DCARDQUERY">
+        <Operation>
+            <Amount>5000</Amount>
+            <Currency>GBP</Currency>
+            <SiteReference>testoutlet12092</SiteReference>
+            <SettlementDay>1</SettlementDay>
+            <TermUrl>https://vp.endofinter.net/checkout</TermUrl>
+            <MerchantName>Outlet</MerchantName>
+        </Operation>
+        <CustomerInfo>
+            <Accept>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</Accept>
+            <UserAgent>Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.2) Gecko/20090803 Ubuntu/9.04 (jaunty) Shiretoko/3.5.2</UserAgent>
+            <Postal>
+                <Name>
+                    <NamePrefix>Mr.</NamePrefix>
+                    <FirstName>Joe</FirstName>
+                    <MiddleName>A.</MiddleName>
+                    <LastName>Bloggs</LastName>
+                    <NameSuffix>CEng.</NameSuffix>
+                </Name>
+                <Company>Test Company</Company>
+                <Street>789 High Street</Street>
+                <City>Bangor</City>
+                <StateProv>Gwynedd</StateProv>
+                <PostalCode>LL45 6DF</PostalCode>
+                <CountryCode>UK</CountryCode>
+            </Postal>
+            <Telecom>
+                <Phone>0000111111</Phone>
+            </Telecom>
+            <Online>
+                <Email>vp@js-image.com</Email>
+            </Online>
+        </CustomerInfo>
+        <PaymentMethod>
+            <CreditCard>
+                <Type>VISA</Type>
+                <Number>4111111111111160</Number>
+                <Issue></Issue>
+                <StartDate></StartDate>
+                <SecurityCode>123</SecurityCode>
+                <ExpiryDate>02/10</ExpiryDate>
+            </CreditCard>
+        </PaymentMethod>
+        <Order>
+            <OrderReference>Order0001</OrderReference>
+            <OrderInformation>This is a test order</OrderInformation>
+        </Order>
+        <Optional>
+            <MyUniqueReference>123456789</MyUniqueReference>
+            <Shipping>
+                <CustomerInfo>
+                    <Address1>Somewhere Else</Address1>
+                </CustomerInfo>
+            </Shipping>
+        </Optional>
+    </Request>
+    <Certificate></Certificate>
+</RequestBlock>

@@ -54,4 +54,12 @@ module Xpay
   class XpayTransaction < ActiveRecord::Base
 
   end
+  class Testclass
+    def read_xml
+      xml_data = ''
+      File.open("#{RAILS_ROOT}/vendor/plugins/xpay/templates/xpay.xml", "r") { |f| xml_data = f.read}
+
+      doc = REXML::Document.new(xml_data.chomp)
+    end
+  end
 end
