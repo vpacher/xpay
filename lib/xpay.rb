@@ -21,9 +21,7 @@ module Xpay
     def config
       @xpay_config
     end
-
     private
-
     def add_certificate(doc)
       cer = doc.root.add_element("Certificate")
       cer.text = Payment.load_certificate
@@ -52,5 +50,8 @@ module Xpay
       action_code = REXML::XPath.first(response_block, "//Result").text.to_i
       return response_block, action_code
     end
+  end
+  class XpayTransaction < ActiveRecord::Base
+
   end
 end
