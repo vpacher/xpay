@@ -1,16 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RequestBlock Version="3.51">
     <Request Type="ST3DCARDQUERY">
         <Operation>
-            <Amount>5000</Amount>
+            <Amount></Amount>
             <Currency>GBP</Currency>
-            <SiteReference>testoutlet12092</SiteReference>
+            <SiteReference></SiteReference>
             <SettlementDay>1</SettlementDay>
-            <TermUrl>https://vp.endofinter.net/checkout</TermUrl>
-            <MerchantName>Outlet</MerchantName>
+            <TermUrl></TermUrl>
+            <MerchantName></MerchantName>
         </Operation>
         <CustomerInfo>
-            <Accept>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</Accept>
-            <UserAgent>Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.2) Gecko/20090803 Ubuntu/9.04 (jaunty) Shiretoko/3.5.2</UserAgent>
+            <Accept></Accept>
+            <UserAgent></UserAgent>
             <Postal>
                 <Name>
                     <NamePrefix>Mr.</NamePrefix>
