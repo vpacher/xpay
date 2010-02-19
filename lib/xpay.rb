@@ -32,6 +32,12 @@ module Xpay
     def pxml
       @xpay_xml
     end
+    def test_data
+      cc = {:type => "Visa", :number => "4111111111111111", :securitycode => "123", :expirydate => "05/10"}
+      operation = {:amount => 1000, :currency => "USD", :termurl => "http://localhost/gateway_callback"}
+      customer = {:firstname => "Volker", :lastname => "Pacher"}
+      return operation, customer, cc
+    end
     private
     def add_certificate(doc)
       cer = doc.root.add_element("Certificate")
@@ -69,7 +75,10 @@ module Xpay
     attr_accessor :operation
     def initialize(operation={}, customer={}, creditcard={})
       @xml = Xpay.pxml
+      #@xml.root.elements["Request"].elements["Operation"].elements["TermUrl"].text = "testing in init"
       set_creditcard(creditcard)
+      #set_customer(customer)
+      #set_operation(operation)
     end
     def operation
       Hash.from_xml(@xml.root.elements["Request"].elements["Operation"].to_s)
@@ -78,32 +87,32 @@ module Xpay
       @xml
     end
 
-    private
+    
     def set_creditcard(block)
       cc = @xml.root.elements["Request"].elements["PaymentMethod"].elements["CreditCard"]
-      cc.elements["Type"].text = block['type']
-      cc.elements["Number"].text = block['number']
-      cc.elements["Issue"].text = block['issue'] unless block['issue'].blank?
-      cc.elements["StartDate"].text = block['startdate'] unless block['startdate'].blank?
-      cc.elements["SecurityCode"].text = block['securitycode']
-      cc.elements["ExpiryDate"].text = block['expirydate']
+      cc.elements["Type"].text = block[:type]
+      cc.elements["Number"].text = block[:number]
+      cc.elements["Issue"].text = block[:issue] unless block[:issue].blank?
+      cc.elements["StartDate"].text = block[:startdate] unless block[:startdate].blank?
+      cc.elements["SecurityCode"].text = block[:securitycode]
+      cc.elements["ExpiryDate"].text = block[:expirydate]
     end
     def set_customer(block)
       cus = @xml.root.elements["Request"].elements["CustomerInfo"]
       postal = cus.elements["Postal"]
       name = postal.elements["Name"]
-      block["nameprefix"].blank? ? name.delete_element("NamePrefix") : name.elements["NamePrefix"].text = block["nameprefix"]
-      name.elements["FirstName"].text = block["firstname"]
-      block["middlename"].blank? ? name.delete_element("MiddleName") : name.elements["MiddleName"].text = block["middlename"]
-      name.elements["LastName"].text = block["lastname"]
-      block["namesuffix"].blank? ? name.delete_element("NameSuffix") : name.elements["NameSuffix"].text = block["namesuffix"]
+      block[:nameprefix].blank? ? name.delete_element("NamePrefix") : name.elements["NamePrefix"].text = block[:nameprefix]
+      name.elements["FirstName"].text = block[:firstname]
+      block[:middlename].blank? ? name.delete_element("MiddleName") : name.elements["MiddleName"].text = block[:middlename]
+      name.elements["LastName"].text = block[:lastname]
+      block[:namesuffix].blank? ? name.delete_element("NameSuffix") : name.elements["NameSuffix"].text = block[:namesuffix]
     end
     def set_operation(block)
       ops = @xml.root.elements["Request"].elements["Operation"]
-      ops.elements["Amount"].text = block["amount"]
-      ops.elements["Currency"].text = block["currency"] unless block["currency"].blank?
-      ops.elements["SettlementDay"].text = block["settlementday"] unless block["settlementday"].blank?
-      ops.elements["TermUrl"].text = block["termurl"] unless block["termurl"].blank?
+      ops.elements["Amount"].text = block[:amount]
+      ops.elements["Currency"].text = block[:currency] unless block[:currency].blank?
+      ops.elements["SettlementDay"].text = block[:settlementday] unless block[:settlementday].blank?
+      ops.elements["TermUrl"].text = block[:termurl] unless block[:termurl].blank?
     end
   end
 end
