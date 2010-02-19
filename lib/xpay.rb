@@ -3,9 +3,9 @@ include REXML
 
 module Xpay
   @xpay_config = {}
-  
+  @xpay_xml = {}
   class << self
-    def load_configuration(xpay_config)
+    def load_configuration(xpay_config, xml_template = "#{RAILS_ROOT}/vendor/plugins/xpay/templates/xpay.xml")
       if File.exist?(xpay_config)
         if defined? RAILS_ENV
           config = YAML.load_file(xpay_config)[RAILS_ENV]
@@ -13,13 +13,24 @@ module Xpay
           config = YAML.load_file(xpay_config)
         end
         apply_configuration(config)
+        read_xml(xml_template)
       end
     end
     def apply_configuration(config)
       @xpay_config = config
     end
+    def read_xml(xml_template)
+      f = File.read(xml_template)
+      @xpay_xml = REXML::Document.new f
+      op = @xpay_xml.root.elements["Request"].elements["Operation"]
+      op.elements["SiteReference"].text = @xpay_config['merchant_reference']
+      op.elements["MerchantName"].text = @xpay_config['merchant_name']
+    end
     def config
       @xpay_config
+    end
+    def pxml
+      @xpay_xml
     end
     private
     def add_certificate(doc)
@@ -54,12 +65,45 @@ module Xpay
   class XpayTransaction < ActiveRecord::Base
 
   end
-  class Testclass
-    def read_xml
-      xml_data = ''
-      File.open("#{RAILS_ROOT}/vendor/plugins/xpay/templates/xpay.xml", "r") { |f| xml_data = f.read}
+  class Payment
+    attr_accessor :operation
+    def initialize(operation={}, customer={}, creditcard={})
+      @xml = Xpay.pxml
+      set_creditcard(creditcard)
+    end
+    def operation
+      Hash.from_xml(@xml.root.elements["Request"].elements["Operation"].to_s)
+    end
+    def xml
+      @xml
+    end
 
-      doc = REXML::Document.new(xml_data.chomp)
+    private
+    def set_creditcard(block)
+      cc = @xml.root.elements["Request"].elements["PaymentMethod"].elements["CreditCard"]
+      cc.elements["Type"].text = block['type']
+      cc.elements["Number"].text = block['number']
+      cc.elements["Issue"].text = block['issue'] unless block['issue'].blank?
+      cc.elements["StartDate"].text = block['startdate'] unless block['startdate'].blank?
+      cc.elements["SecurityCode"].text = block['securitycode']
+      cc.elements["ExpiryDate"].text = block['expirydate']
+    end
+    def set_customer(block)
+      cus = @xml.root.elements["Request"].elements["CustomerInfo"]
+      postal = cus.elements["Postal"]
+      name = postal.elements["Name"]
+      block["nameprefix"].blank? ? name.delete_element("NamePrefix") : name.elements["NamePrefix"].text = block["nameprefix"]
+      name.elements["FirstName"].text = block["firstname"]
+      block["middlename"].blank? ? name.delete_element("MiddleName") : name.elements["MiddleName"].text = block["middlename"]
+      name.elements["LastName"].text = block["lastname"]
+      block["namesuffix"].blank? ? name.delete_element("NameSuffix") : name.elements["NameSuffix"].text = block["namesuffix"]
+    end
+    def set_operation(block)
+      ops = @xml.root.elements["Request"].elements["Operation"]
+      ops.elements["Amount"].text = block["amount"]
+      ops.elements["Currency"].text = block["currency"] unless block["currency"].blank?
+      ops.elements["SettlementDay"].text = block["settlementday"] unless block["settlementday"].blank?
+      ops.elements["TermUrl"].text = block["termurl"] unless block["termurl"].blank?
     end
   end
 end
