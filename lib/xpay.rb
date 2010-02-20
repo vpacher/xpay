@@ -62,7 +62,7 @@ module Xpay
     private
     def add_certificate(doc)
       cer = doc.root.add_element("Certificate")
-      cer.text = Payment.load_certificate
+      cer.text = load_certificate
       return doc
     end
     def load_certificate
@@ -96,8 +96,8 @@ module Xpay
       set_operation(options[:operation])
       #set_optional(options[:optional])
       # Process the Payment
-      #process_payment()
-      
+      process_payment()
+      return response_block
     end
     def operation
       Hash.from_xml(@request_xml.root.elements["Request"].elements["Operation"].to_s)
@@ -108,6 +108,16 @@ module Xpay
     def three_secure
       @three_secure
     end
+    def response_block
+      rh = {}
+      rh[:result_code] = REXML::XPath.first(@response_xml, "//Result").text.to_i
+      rh[:security_code_response] = REXML::XPath.first(@response_xml, "//SecurityResponseSecurityCode").text.to_i rescue nil
+      rh[:transaction_reference] = REXML::XPath.first(@response_xml, "//TransactionReference").text rescue nil
+      rh[:transaction_time] = REXML::XPath.first(@response_xml, "//TransactionCompletedTimestamp").text rescue nil
+      rh[:auth_code] = REXML::XPath.first(@response_xml, "//AuthCode").text rescue nil
+      rh[:settlement_status] = REXML::XPath.first(@response_xml, "//SettleStatus").text.to_i rescue nil
+      return rh
+    end
     def request_method
       REXML::XPath.first(@request_xml, "//Request").attributes["Type"]
     end
@@ -115,6 +125,7 @@ module Xpay
       REXML::XPath.first(@response_xml, "//Result").text.to_i
     end
     private
+    
     def process_payment
       # Send it to Xpay
       @response_xml = Xpay.xpay(@request_xml)
