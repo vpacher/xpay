@@ -98,7 +98,7 @@ module Xpay
         else
           # TODO add some error code here if the stored transaction can not be found (browser refresh, hacking attempt etc)
         end
-        
+      # Otherwise init a new payment with the data provided
       else
         # First we create an instance variable and copy the xml template that was initialized with xpay.yml into it.
         @request_xml = Xpay.pxml
@@ -120,12 +120,6 @@ module Xpay
         process_payment()
       end
       return response_block
-    end
-    def operation
-      Hash.from_xml(@request_xml.root.elements["Request"].elements["Operation"].to_s)
-    end
-    def xml
-      @request_xml
     end
     def three_secure
       @three_secure
