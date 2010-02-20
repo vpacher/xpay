@@ -1,0 +1,9 @@
+development:
+  merchant_reference: yourreference
+  path_to_cert: /path/to/your/certs.pem
+  merchant_name: merchant_name
+production:
+  merchant_reference: yourreference
+  path_to_cert: /path/to/your/certs.pem
+  merchant_name: merchant_name
+
