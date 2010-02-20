@@ -72,7 +72,7 @@ module Xpay
     end
   end
   class XpayTransaction < ActiveRecord::Base
-
+    
   end
   class Payment
     @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
@@ -126,11 +126,41 @@ module Xpay
         case response_code
         when 1 # ONE -> 3D AUTH required
           rewrite_request_block # Rewrite the request block with information from the response, deleting unused items
+
+          # If the card is enrolled in the scheme a redirect to a 3D Secure server is necessary, for this we need to store the request_xml in the database to be retrieved after the callback from the 3D secure Server and used to initialize a new payment object
+          # otherwise, if the card is not enrolled we just do a 3D AUTH straight away
+          if REXML::XPath.first(@response_xml, "//Enrolled").text == "Y"
+
+            #card is enrolled, set @three_secure instance variable
+            @three_secure = {:md => REXML::XPath.first(@response_xml, "//MD").text, :pareq => REXML::XPath.first(@response_xml, "//PaReq").text, :termurl => REXML::XPath.first(@response_xml, "//TermUrl").text, :acsurl =>  REXML::XPath.first(@response_xml, "//AcsUrl").text}
+
+            #create XpayTransaction object to be recalled after gateway callback, identified by md
+            xt = Xpay::XpayTransaction.create(:md => @three_secure[:md], :request_block => @request_xml)
+
+          else
+
+            # The Card is not enrolled and we do a 3D Auth request without going through a 3D Secure Server
+            # The PaRes element is required but empty as we did not go through a 3D Secure Server
+            threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
+            pares = threedsecure.add_element("PaRes")
+            pares.text = ""
+            @response_xml = Xpay.xpay(@request_xml)
+
+          end
+        when 2 # TWO -> do a normal AUTH request
+          rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
+          @response_xml = Xpay.xpay(@request_xml)
+        else # ALL other cases, payment declined
+          # TODO add some result structure as hash to give access to response information in hash format
         end
+      when "AUTH" #standard AUTH request, recurring payments with transaction verifier usually
+        @response_xml = Xpay.xpay(@request_xml)
       end
     end
+
+    #rewrites the request xml after a ST3DCARDQUERY according to the response code
     def rewrite_request_block(auth_type="ST3DAUTH")
-      #rewrites the request xml after a ST3DCARDQUERY according to the response code
+      
       REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type #sets the required auth type
 
       # delete term url and merchant name
