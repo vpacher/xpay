@@ -75,18 +75,18 @@ module Xpay
 
   end
   class Payment
-    @xml = REXML::Document
+    @request_xml = REXML::Document
     @response_xml = REXML::Document
     def initialize(options={})
       # First we create an instance variable and copy the xml template that was initialized with xpay.yml into it.
-      @xml = Xpay.pxml
+      @request_xml = Xpay.pxml
 
       # Setting the desired request type depending on data provided, defaults to ST3DCARDQUERY if credit card is given or AUTH if transaction verifier is given (implies repeat transaction)
       unless options[:operation][:auth_type].blank?
-        REXML::XPath.first(@xml, "//Request").attributes["Type"] = options[:operation][:auth_type]
+        REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = options[:operation][:auth_type]
       else
         auth_type = options[:creditcard][:transaction_verifier].blank? ? "ST3DCARDQUERY" : "AUTH"
-        REXML::XPath.first(@xml, "//Request").attributes["Type"] = auth_type
+        REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type
       end
 
       # Fill it with all the data provided
@@ -95,42 +95,44 @@ module Xpay
       set_operation(options[:operation])
       #set_optional(options[:optional])
       # Process the Payment
-      process_payment()
+      #process_payment()
       
     end
     def operation
-      Hash.from_xml(@xml.root.elements["Request"].elements["Operation"].to_s)
+      Hash.from_xml(@request_xml.root.elements["Request"].elements["Operation"].to_s)
     end
     def xml
-      @xml
+      @request_xml
     end
 
     private
-
+    def request_method
+      REXML::XPath.first(@request_xml, "//Request").attributes["Type"]
+    end
     def process_payment
       # Send it to Xpay
-      @response_xml = Xpay.xpay(@xml)
+      @response_xml = Xpay.xpay(@request_xml)
       # Now take the response appart and see what we got
       
     end
     def set_creditcard(block)
 
-      cc = @xml.root.elements["Request"].elements["PaymentMethod"].elements["CreditCard"]
+      cc = @request_xml.root.elements["Request"].elements["PaymentMethod"].elements["CreditCard"]
       # If a transaction verifier is present a repeat transaction is implied otherwise we fill in the Credit Card data
-      unless block[:transaction_verifier].blank?
+      if block[:transaction_verifier].blank?
         cc.elements["Type"].text = block[:type]
         cc.elements["Number"].text = block[:number]
-        block[:issue].blank? ? cc.delete_element["Issue"] : cc.elements["Issue"].text = block[:issue]
-        block[:startdate].blank? ? cc.delete_element["StartDate"] : cc.elements["StartDate"].text = block[:startdate]
+        block[:issue].blank? ? cc.delete_element("Issue") : cc.elements["Issue"].text = block[:issue]
+        block[:startdate].blank? ? cc.delete_element("StartDate") : cc.elements["StartDate"].text = block[:startdate]
         cc.elements["SecurityCode"].text = block[:securitycode]
         cc.elements["ExpiryDate"].text = block[:expirydate]
       else
-        cc.delete_element["Type"]
-        cc.delete_element["Number"]
-        cc.delete_element["Issue"]
-        cc.delete_element["StartDate"]
-        cc.delete_element["SecurityCode"]
-        cc.delete_element["SecurityCode"]
+        cc.delete_element("Type")
+        cc.delete_element("Number")
+        cc.delete_element("Issue")
+        cc.delete_element("StartDate")
+        cc.delete_element("SecurityCode")
+        cc.delete_element("SecurityCode")
         tv = cc.add_element("TransactionVerifier")
         tv.text = block[:transaction_verifier]
         ptr = cc.add_element("ParentTransactionReference")
@@ -139,15 +141,15 @@ module Xpay
     end
     def set_customer(block)
       # Root element for all customer info
-      cus = @xml.root.elements["Request"].elements["CustomerInfo"]
+      cus = @request_xml.root.elements["Request"].elements["CustomerInfo"]
 
       # User agent and Accept encoding goes here
       unless (block[:user_agent].blank? || block[:accept].blank?) #both elements are required for 3D Secure, if missing AUTH is assumed and both elements are removed from the xml
         cus.elements["UserAgent"].text = block[:user_agent]
         cus.elements["Accept"].text = block[:accept]
       else
-        cus.delete_element("UserAgent")
-        cus.delete_element("Accept")
+        cus.delete_element("//UserAgent")
+        cus.delete_element("//Accept")
       end
 
       # Postal node -> name and adress
@@ -162,24 +164,24 @@ module Xpay
       block[:namesuffix].blank? ? name.delete_element("NameSuffix") : name.elements["NameSuffix"].text = block[:namesuffix]
       
       # Address and Company name
-      block[:company_name].blank? ? name.delete_element("Company") : name.elements["Company"].text = block[:company_name]
-      block[:street].blank? ? name.delete_element("Street") : name.elements["Street"].text = block[:street]
-      block[:city].blank? ? name.delete_element("City") : name.elements["City"].text = block[:city]
-      block[:state].blank? ? name.delete_element("StateProv") : name.elements["StateProv"].text = block[:state]
-      block[:zip].blank? ? name.delete_element("PostalCode") : name.elements["PostalCode"].text = block[:zip]
-      block[:country_code].blank? ? name.delete_element("CountryCode") : name.elements["CountryCode"].text = block[:country_code]
+      block[:company_name].blank? ? postal.delete_element("Company") : postal.elements["Company"].text = block[:company_name]
+      block[:street].blank? ? postal.delete_element("Street") : postal.elements["Street"].text = block[:street]
+      block[:city].blank? ? postal.delete_element("City") : postal.elements["City"].text = block[:city]
+      block[:state].blank? ? postal.delete_element("StateProv") : postal.elements["StateProv"].text = block[:state]
+      block[:zip].blank? ? postal.delete_element("PostalCode") : postal.elements["PostalCode"].text = block[:zip]
+      block[:country_code].blank? ? postal.delete_element("CountryCode") : postal.elements["CountryCode"].text = block[:country_code]
 
       # Telephone
       telco = cus.elements["Telecom"]
-      block[:phone_number].blank? ? telco.delete_element("Phone") : telco.elements["Phone"].text = block[:phone_number]
+      block[:phone_number].blank? ? cus.delete_element("Telecom") : telco.elements["Phone"].text = block[:phone_number]
 
       #email
       online_info = cus.elements["Online"]
-      block[:email].blank? ? online_info.delete_element("Email") : online_info.elements["Email"].text = block[:email]
+      block[:email].blank? ? cus.delete_element("Online") : online_info.elements["Email"].text = block[:email]
     end
     def set_operation(block)
       # Operation block root
-      ops = @xml.root.elements["Request"].elements["Operation"]
+      ops = @request_xml.root.elements["Request"].elements["Operation"]
       ops.elements["Amount"].text = block[:amount]
       ops.elements["Currency"].text = block[:currency] unless block[:currency].blank?
       ops.elements["SettlementDay"].text = block[:settlementday] unless block[:settlementday].blank?
@@ -194,7 +196,7 @@ module Xpay
 
       # Order information
       # this is a seperate block in the xml but for the sake of reduced complexity I've included it in the operation hash
-      order_info = @xml.root.elements["Request"].elements["Order"]
+      order_info = @request_xml.root.elements["Request"].elements["Order"]
       order_info.elements["OrderReference"].text = block[:order_ref]
       order_info.elements["OrderInformation"].text = block[:order_info]
     end
