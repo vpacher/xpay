@@ -72,31 +72,42 @@ module Xpay
     end
   end
   class XpayTransaction < ActiveRecord::Base
-    
+    serialize :request_block
   end
   class Payment
     @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
     @response_xml = REXML::Document # Response XML document, received from secure trading
     @three_secure = {} # 3D Secure information hash, used for redirecting to 3D Secure server in form
     def initialize(options={})
-      # First we create an instance variable and copy the xml template that was initialized with xpay.yml into it.
-      @request_xml = Xpay.pxml
-
-      # Setting the desired request type depending on data provided, defaults to ST3DCARDQUERY if credit card is given or AUTH if transaction verifier is given (implies repeat transaction)
-      unless options[:operation][:auth_type].blank?
-        REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = options[:operation][:auth_type]
+      # if the options contain an xpaytransaction object we use this for the init (in case of 3D Secure callback)
+      unless options[:three_secure].blank?
+        @three_secure = options[:three_secure]
+        if xt = Xpay::XpayTransaction.find_by_md(@three_secure[:MD])
+          @request_xml = xt.request_block
+        
+        else
+        end
+        
       else
-        auth_type = options[:creditcard][:transaction_verifier].blank? ? "ST3DCARDQUERY" : "AUTH"
-        REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type
-      end
+        # First we create an instance variable and copy the xml template that was initialized with xpay.yml into it.
+        @request_xml = Xpay.pxml
 
-      # Fill it with all the data provided
-      set_creditcard(options[:creditcard])
-      set_customer(options[:customer])
-      set_operation(options[:operation])
-      #set_optional(options[:optional])
-      # Process the Payment
-      process_payment()
+        # Setting the desired request type depending on data provided, defaults to ST3DCARDQUERY if credit card is given or AUTH if transaction verifier is given (implies repeat transaction)
+        unless options[:operation][:auth_type].blank?
+          REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = options[:operation][:auth_type]
+        else
+          auth_type = options[:creditcard][:transaction_verifier].blank? ? "ST3DCARDQUERY" : "AUTH"
+          REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type
+        end
+
+        # Fill it with all the data provided
+        set_creditcard(options[:creditcard])
+        set_customer(options[:customer])
+        set_operation(options[:operation])
+        #set_optional(options[:optional])
+        # Process the Payment
+        process_payment()
+      end
       return response_block
     end
     def operation
