@@ -45,11 +45,8 @@ module Xpay
       res = a.read()
       a.close
 
-      # create an xml document, use everything from the start of <ResponseBlock to the end, discard header and status etc
-      response_block = REXML::Document.new res[res.index("<ResponseBlock"), res.length]
-
-      # Return the repsone block xml
-      return response_block
+      # create an xml document, use everything from the start of <ResponseBlock to the end, discard header and status etc and return it
+      return REXML::Document.new res[res.index("<ResponseBlock"), res.length]
     end
 
     # Test data for a succesfull none 3DSecure transaction
@@ -81,11 +78,25 @@ module Xpay
     def initialize(options={})
       # if the options contain an xpaytransaction object we use this for the init (in case of 3D Secure callback)
       unless options[:three_secure].blank?
+
+        # 3D Secure call back happens as a POST, assign the params transmitted to the instance variable
         @three_secure = options[:three_secure]
         if xt = Xpay::XpayTransaction.find_by_md(@three_secure[:MD])
+          # Delete the transcation straigh away to avoid problems with browser refresh, maybe worthwile to explore modifying the record and lock it instead
+          PendingTraXpay::XpayTransaction.delete(xt)
+
+          # Assign the xml stored in the table to the instance variable
           @request_xml = xt.request_block
-        
+
+          # Add the PaRes element and add data as supplied by callback from 3D Secure Server (as post with params)
+          threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
+          pares = threedsecure.add_element("PaRes")
+          pares.text = @three_secure[:pares]
+
+          # Process the payment
+          callback_process_payment
         else
+          # TODO add some error code here if the stored transaction can not be found (browser refresh, hacking attempt etc)
         end
         
       else
@@ -180,6 +191,10 @@ module Xpay
       end
     end
 
+    # Method is called when it is a gateway callback, this is for future compatibility and easier code than writing additional logic to distinguish between normal auth and gateway callback auth
+    def callback_process_payment
+      @response_xml = Xpay.xpay(@request_xml)
+    end
     #rewrites the request xml after a ST3DCARDQUERY according to the response code
     def rewrite_request_block(auth_type="ST3DAUTH")
       
@@ -215,6 +230,8 @@ module Xpay
       end
 
     end
+
+    # Set the credit card block in the XML document
     def set_creditcard(block)
 
       cc = @request_xml.root.elements["Request"].elements["PaymentMethod"].elements["CreditCard"]
