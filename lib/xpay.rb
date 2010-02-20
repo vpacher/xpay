@@ -36,7 +36,7 @@ module Xpay
       cc = {:type => "Visa", :number => "4111111111111111", :securitycode => "123", :expirydate => "05/10"}
       operation = {:amount => 1000, :currency => "USD", :termurl => "http://localhost/gateway_callback"}
       customer = {:firstname => "Volker", :lastname => "Pacher"}
-      return operation, customer, cc
+      return {:operation => operation, :customer => customer, :creditcard => cc}
     end
     private
     def add_certificate(doc)
@@ -73,12 +73,11 @@ module Xpay
   end
   class Payment
     attr_accessor :operation
-    def initialize(operation={}, customer={}, creditcard={})
+    def initialize(options={})
       @xml = Xpay.pxml
-      #@xml.root.elements["Request"].elements["Operation"].elements["TermUrl"].text = "testing in init"
-      set_creditcard(creditcard)
-      #set_customer(customer)
-      #set_operation(operation)
+      set_creditcard(options[:creditcard])
+      set_customer(options[:customer])
+      set_operation(options[:operation])
     end
     def operation
       Hash.from_xml(@xml.root.elements["Request"].elements["Operation"].to_s)
@@ -87,7 +86,7 @@ module Xpay
       @xml
     end
 
-    
+    private
     def set_creditcard(block)
       cc = @xml.root.elements["Request"].elements["PaymentMethod"].elements["CreditCard"]
       cc.elements["Type"].text = block[:type]
@@ -98,14 +97,39 @@ module Xpay
       cc.elements["ExpiryDate"].text = block[:expirydate]
     end
     def set_customer(block)
+      # Root element for all customer info
       cus = @xml.root.elements["Request"].elements["CustomerInfo"]
+
+      # User agent and Accept encoding goes here
+      block[:user_agent].blank? ? cus.delete_element("UserAgent") : cus.elements["UserAgent"].text = block[:user_agent]
+      block[:accept].blank? ? cus.delete_element("Accept") : cus.elements["Accept"].text = block[:accept]
+
+      # Postal node -> name and adress
       postal = cus.elements["Postal"]
+
+      # Customer Name
       name = postal.elements["Name"]
       block[:nameprefix].blank? ? name.delete_element("NamePrefix") : name.elements["NamePrefix"].text = block[:nameprefix]
       name.elements["FirstName"].text = block[:firstname]
       block[:middlename].blank? ? name.delete_element("MiddleName") : name.elements["MiddleName"].text = block[:middlename]
       name.elements["LastName"].text = block[:lastname]
       block[:namesuffix].blank? ? name.delete_element("NameSuffix") : name.elements["NameSuffix"].text = block[:namesuffix]
+      
+      # Address and Company name
+      block[:company_name].blank? ? name.delete_element("Company") : name.elements["Company"].text = block[:company_name]
+      block[:street].blank? ? name.delete_element("Street") : name.elements["Street"].text = block[:street]
+      block[:city].blank? ? name.delete_element("City") : name.elements["City"].text = block[:city]
+      block[:state].blank? ? name.delete_element("StateProv") : name.elements["StateProv"].text = block[:state]
+      block[:zip].blank? ? name.delete_element("PostalCode") : name.elements["PostalCode"].text = block[:zip]
+      block[:country_code].blank? ? name.delete_element("CountryCode") : name.elements["CountryCode"].text = block[:country_code]
+
+      # Telephone
+      telco = cus.elements["Telecom"]
+      block[:phone_number].blank? ? telco.delete_element("Phone") : telco.elements["Phone"].text = block[:phone_number]
+
+      #email
+      online_info = cus.elements["Online"]
+      block[:email].blank? ? online_info.delete_element("Email") : online_info.elements["Email"].text = block[:email]
     end
     def set_operation(block)
       ops = @xml.root.elements["Request"].elements["Operation"]
