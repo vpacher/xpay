@@ -75,8 +75,9 @@ module Xpay
 
   end
   class Payment
-    @request_xml = REXML::Document
-    @response_xml = REXML::Document
+    @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
+    @response_xml = REXML::Document # Response XML document, received from secure trading
+    @three_secure = {} # 3D Secure information hash, used for redirecting to 3D Secure server in form
     def initialize(options={})
       # First we create an instance variable and copy the xml template that was initialized with xpay.yml into it.
       @request_xml = Xpay.pxml
@@ -104,16 +105,63 @@ module Xpay
     def xml
       @request_xml
     end
-
-    private
+    def three_secure
+      @three_secure
+    end
     def request_method
       REXML::XPath.first(@request_xml, "//Request").attributes["Type"]
     end
+    def response_code
+      REXML::XPath.first(@response_xml, "//Result").text.to_i
+    end
+    private
     def process_payment
       # Send it to Xpay
       @response_xml = Xpay.xpay(@request_xml)
       # Now take the response appart and see what we got
-      
+      case request_method
+      when "ST3DCARDQUERY"
+        # We did a 3D Card query, further action is now based on response code
+        @response_xml = Xpay.xpay(@request_xml) if response_code==0 #if the response code is ZERO in ST3DCARDQUERY we try again one more time (According to securtrading tech support)
+        case response_code
+        when 1 # ONE -> 3D AUTH required
+          rewrite_request_block # Rewrite the request block with information from the response, deleting unused items
+        end
+      end
+    end
+    def rewrite_request_block(auth_type="ST3DAUTH")
+      #rewrites the request xml after a ST3DCARDQUERY according to the response code
+      REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type #sets the required auth type
+
+      # delete term url and merchant name
+      op = REXML::XPath.first(@request_xml, "//Operation")
+      op.delete_element "TermUrl"
+      op.delete_element "MerchantName"
+
+      #delete accept and user agent in customer info
+      customer_info = REXML::XPath.first(@request_xml, "//CustomerInfo")
+      customer_info.delete_element "//Accept"
+      customer_info.delete_element "//UserAgent"
+
+      #delete credit card details and add TransactionVerifier and TransactionReference from response xml
+      cc_details = REXML::XPath.first(@request_xml, "//CreditCard")
+      cc_details.delete_element "//Number"
+      cc_details.delete_element "//Type"
+      trans_ver = cc_details.add_element("TransactionVerifier")
+      trans_ver.text = REXML::XPath.first(@response_xml, "//TransactionVerifier").text
+      trans_ref = cc_details.add_element("ParentTransactionReference")
+      trans_ref.text = REXML::XPath.first(@response_xml, "//TransactionReference").text
+
+      #unless it is an AUTH request, add additional required info for 3DAUTH
+      unless auth_type == "AUTH"
+        pm_method = REXML::XPath.first(@request_xml, "//PaymentMethod")
+        threedsecure = pm_method.add_element("ThreeDSecure")
+        enrolled = threedsecure.add_element("Enrolled")
+        enrolled.text = REXML::XPath.first(@response_xml, "//Enrolled").text
+        md = threedsecure.add_element("MD")
+        md.text = REXML::XPath.first(@response_xml, "//MD").text rescue ""
+      end
+
     end
     def set_creditcard(block)
 
