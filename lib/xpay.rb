@@ -67,8 +67,19 @@ module Xpay
       mycert.chomp
     end
   end
-  class XpayTransaction < ActiveRecord::Base
-    serialize :request_block
+  class XpayRequest
+    def self.to_mongo(value)
+      value.to_s
+    end
+    def self.from_mongo(value)
+      REXML::Document.new value
+    end
+  end
+  class XpayTransaction
+    include MongoMapper::Document
+    MongoMapper.database = 'jansan_development'
+    key :md,     String, :required => true
+    key :request_block,     Xpay::XpayRequest
   end
   class Payment
     @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
