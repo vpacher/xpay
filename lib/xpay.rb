@@ -67,19 +67,11 @@ module Xpay
       mycert.chomp
     end
   end
-  class XpayRequest
-    def self.to_mongo(value)
-      value.to_s
-    end
-    def self.from_mongo(value)
-      REXML::Document.new value
-    end
-  end
   class XpayTransaction
     include MongoMapper::Document
     MongoMapper.database = 'jansan_development'
-    key :md,     String, :required => true
-    key :request_block,     Xpay::XpayRequest
+    key :md,     String
+    key :request_block, Binary
   end
   class Payment
     @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
