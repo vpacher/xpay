@@ -5,7 +5,7 @@ module Xpay
   @xpay_config = {}
   @xpay_xml = {}
   class << self
-    def load_configuration(xpay_config, xml_template = "#{RAILS_ROOT}/vendor/plugins/xpay/templates/xpay.xml")
+    def load_configuration(xpay_config, xml_template = "#{RAILS_ROOT}/config/xpay.xml")
       if File.exist?(xpay_config)
         if defined? RAILS_ENV
           config = YAML.load_file(xpay_config)[RAILS_ENV]
@@ -44,7 +44,6 @@ module Xpay
       a.write(r_block.to_s)
       res = a.read()
       a.close
-
       # create an xml document, use everything from the start of <ResponseBlock to the end, discard header and status etc and return it
       return REXML::Document.new res[res.index("<ResponseBlock"), res.length]
     end
@@ -98,7 +97,7 @@ module Xpay
         else
           # TODO add some error code here if the stored transaction can not be found (browser refresh, hacking attempt etc)
         end
-      # Otherwise init a new payment with the data provided
+        # Otherwise init a new payment with the data provided
       else
         # First we create an instance variable and copy the xml template that was initialized with xpay.yml into it.
         @request_xml = Xpay.pxml
