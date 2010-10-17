@@ -1,23 +1,37 @@
+require 'rubygems'
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'bundler'
 
-desc 'Default: run unit tests.'
+require File.expand_path('../lib/xpay/version', __FILE__)
+
+namespace :test do
+  Rake::TestTask.new(:all) do |test|
+    test.libs << 'lib' << 'test'
+    test.pattern   = 'test/{functional,unit}/**/test_*.rb'
+  end
+end
 task :default => :test
 
-desc 'Test the xpay plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.libs << 'test'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
+desc 'Builds the gem'
+task :build do
+  sh "gem build xpay.gemspec"
 end
 
-desc 'Generate documentation for the xpay plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'Xpay'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+desc 'Builds and installs the gem'
+task :install => :build do
+  sh "gem install xpay-#{Xpay::Version}"
 end
+
+desc 'Tags version, pushes to remote, and pushes gem'
+task :release => :build do
+  sh "git tag v#{Xpay::Version}"
+  sh "git push origin master"
+  sh "git push origin v#{Xpay::Version}"
+  sh "gem push xpay-#{Xpay::Version}.gem"
+end
+desc "Open an irb session preloaded with this library"
+task :console do
+  sh "irb -rubygems -I lib -r xpay.rb"
+end
+Bundler::GemHelper.install_tasks
