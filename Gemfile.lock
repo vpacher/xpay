@@ -1,0 +1,33 @@
+PATH
+  remote: .
+  specs:
+    xpay (0.0.1)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    diff-lcs (1.1.2)
+    log_buddy (0.5.0)
+    mocha (0.9.8)
+      rake
+    rake (0.8.7)
+    rspec (2.0.0)
+      rspec-core (= 2.0.0)
+      rspec-expectations (= 2.0.0)
+      rspec-mocks (= 2.0.0)
+    rspec-core (2.0.0)
+    rspec-expectations (2.0.0)
+      diff-lcs (>= 1.1.2)
+    rspec-mocks (2.0.0)
+      rspec-core (= 2.0.0)
+      rspec-expectations (= 2.0.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (>= 1.0.0)
+  log_buddy
+  mocha
+  rspec (>= 2.0.0)
+  xpay!

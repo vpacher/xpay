@@ -20,7 +20,7 @@ end
 
 desc 'Builds and installs the gem'
 task :install => :build do
-  sh "gem install xpay-#{Xpay::Version}"
+  sh "gem install ./pkg/xpay-#{Xpay::Version}"
 end
 
 desc 'Tags version, pushes to remote, and pushes gem'

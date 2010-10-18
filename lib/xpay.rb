@@ -1,6 +1,7 @@
 require 'rexml/document'
 include REXML
 
+require 'xpay/configuration'
 module Xpay
   @xpay_config = {}
   @xpay_xml = {}
@@ -66,9 +67,6 @@ module Xpay
       File.open(@xpay_config['path_to_cert'], "r") { |f| mycert = f.read}
       mycert.chomp
     end
-  end
-  class XpayTransaction < ActiveRecord::Base
-    serialize :request_block
   end
   class Payment
     @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
