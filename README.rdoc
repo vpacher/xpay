@@ -1,6 +1,28 @@
-= EFCM
+= Xpay
 
-An implementation of Extended Fuzzy Clustering Algorithm including hypervolumes and cluster merging
+An abstaction layer on top Xpay from SecureTrading.com
+http://www.securetrading.com/support/xpay.html for futher details, in depth specifications and installation guides of the xpay java applet
+
+== Install
+ * install the xpay java applet and configure it according to the installation guidelines from SecureTrading
+   (http://www.securetrading.com/download/DOC_COM_ST-XPAY4-USER-GUIDE.pdf)
+ * start the applet then install the gem:
+
+ $ gem install xpay
+
+ * configure by either creating a yaml file at config/xpay.yml or call Xpay.set_config with a hash
+ * the following options can be set:
+    - merchant_name
+    - version
+    - alias
+    - site_reference
+    - port
+    - callback_url
+
+
+== Copyright
+
+See LICENSE for details.
 
 == Note on Patches/Pull Requests
 
@@ -9,11 +31,3 @@ An implementation of Extended Fuzzy Clustering Algorithm including hypervolumes 
 * Add tests for it. This is important so I don't break it in a future version unintentionally.
 * Commit, do not mess with rakefile, version, or history. (if you want to have your own version, that is fine but bump version in a commit by itself in another branch so I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
-
-== Install
-
- $ gem install ecfm
-
-== Copyright
-
-See LICENSE for details.

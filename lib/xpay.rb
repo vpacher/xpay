@@ -1,42 +1,88 @@
 require 'rexml/document'
-include REXML
+require 'rexml/xmldecl'
+require 'ostruct'
 
-require 'xpay/configuration'
 require 'xpay/transaction'
-require 'xpay/payment'
 
 module Xpay
-  @xpay_config = {}
-  @xpay_xml = {}
+  autoload :Payment, 'xpay/payment'
+  autoload :CreditCard, 'xpay/core/creditcard'
+  autoload :Customer, 'xpay/core/customer'
+  #include REXML
+
+
+  # Here are the default settings. You can change them by placing YAML file into config/xpay.yml with settings for each environment.
+  # Alternatively you can change the settings by calling the config setter
+  #
+  # merchant_name:  CompanyName
+  # version:        3.51              'this is the only supported version at the moment and has to be 3.51'
+  # alias:          site12345
+  # site_reference: site12345
+  # port:           5000
+  # default_query:  ST3DCARDQUERY      'defaults to 3D Card query if not otherwise specified'
+  # settlement_day: 1
+  # default_currency: GBP
+
+  @xpay_config = OpenStruct.new({
+                                        "merchant_name" => "CompanyName",
+                                        "version" => "3.51",
+                                        "alias" => "site12345",
+                                        "site_reference" => "site12345",
+                                        "port" => "5000",
+                                        "callback_url" => "http://localhost/gateway_callback",
+                                        "default_query" => "ST3DCARDQUERY",
+                                        "settlement_day" => "1",
+                                        "default_currency" => "GBP"
+                                })
   class << self
-    def load_configuration(xpay_config, xml_template = "#{RAILS_ROOT}/config/xpay.xml")
-      if File.exist?(xpay_config)
-        if defined? RAILS_ENV
-          config = YAML.load_file(xpay_config)[RAILS_ENV]
-        else
-          config = YAML.load_file(xpay_config)
-        end
-        apply_configuration(config)
-        read_xml(xml_template)
+    attr_accessor :app_root, :environment
+
+    def load_config(app_root = Dir.pwd)
+      self.app_root = (RAILS_ROOT if defined?(RAILS_ROOT)) || app_root
+      self.environment = (RAILS_ENV if defined?(RAILS_ENV)) || "development"
+      parse_config
+    end
+
+    def parse_config
+      path = "#{app_root}/config/xpay.yml"
+      return unless File.exists?(path)
+      conf = YAML::load(ERB.new(IO.read(path)).result)[environment]
+      self.set_config(conf)
+    end
+
+    def root_xml
+      @request_xml ||= create_root_xml
+    end
+
+    def create_root_xml
+      r = REXML::Document.new
+      r << REXML::XMLDecl.new("1.0", "iso-8859-1")
+      rb = r.add_element "RequestBlock", {"Version" => config.version}
+      request = rb.add_element "Request", {"Type" => config.version}
+      operation = request.add_element "Operation"
+      site_ref = operation.add_element "SiteReference"
+      site_ref.text = config.site_reference
+      if config.version== "ST3DCARDQUERY"
+        mn = operation.add_element "MerchanteName"
+        mn.text = config.merchant_name
+        tu = operation.add_element "TermUrl"
+        tu.text = config.callback_url
       end
+      cer = rb.add_element "Certificate"
+      cer.text = config.alias
+      return r
     end
-    def apply_configuration(config)
-      @xpay_config = config
-    end
-    def read_xml(xml_template)
-      f = File.read(xml_template)
-      @xpay_xml = REXML::Document.new f
-      op = @xpay_xml.root.elements["Request"].elements["Operation"]
-      op.elements["SiteReference"].text = @xpay_config['merchant_reference']
-      op.elements["MerchantName"].text = @xpay_config['merchant_name']
-    end
+
     def config
       @xpay_config
     end
-    def pxml
-      @xpay_xml
+
+    def set_config(conf)
+      conf.each do |key, value|
+        @xpay_config.send("#{key}=", value) if @xpay_config.respond_to? key
+      end
     end
-    
+
 
     # Test data for a successful none 3DSecure transaction
     def test_data
@@ -45,18 +91,9 @@ module Xpay
       customer = {:firstname => "Joe", :lastname => "Bloggs"}
       return {:operation => operation, :customer => customer, :creditcard => cc}
     end
-    private
-    def add_certificate(doc)
-      cer = doc.root.add_element("Certificate")
-      cer.text = load_certificate
-      return doc
-    end
-    def load_certificate
-      mycert = ''
-      File.open(@xpay_config['path_to_cert'], "r") { |f| mycert = f.read}
-      mycert.chomp
-    end
+
   end
+
   class Payment_old
     @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
     @response_xml = REXML::Document # Response XML document, received from secure trading
@@ -107,9 +144,11 @@ module Xpay
       end
       return response_block
     end
+
     def three_secure
       @three_secure
     end
+
     def response_block
       rh = {}
       rh[:result_code] = REXML::XPath.first(@response_xml, "//Result").text.to_i
@@ -120,54 +159,57 @@ module Xpay
       rh[:settlement_status] = REXML::XPath.first(@response_xml, "//SettleStatus").text.to_i rescue nil
       return rh
     end
+
     def request_method
       REXML::XPath.first(@request_xml, "//Request").attributes["Type"]
     end
+
     def response_code
       REXML::XPath.first(@response_xml, "//Result").text.to_i
     end
+
     private
-    
+
     def process_payment
       # Send it to Xpay
       @response_xml = Xpay.xpay(@request_xml)
       # Now take the response appart and see what we got
       case request_method
-      when "ST3DCARDQUERY"
-        # We did a 3D Card query, further action is now based on response code
-        @response_xml = Xpay.xpay(@request_xml) if response_code==0 #if the response code is ZERO in ST3DCARDQUERY we try again one more time (According to securtrading tech support)
-        case response_code
-        when 1 # ONE -> 3D AUTH required
-          rewrite_request_block # Rewrite the request block with information from the response, deleting unused items
+        when "ST3DCARDQUERY"
+          # We did a 3D Card query, further action is now based on response code
+          @response_xml = Xpay.xpay(@request_xml) if response_code==0 #if the response code is ZERO in ST3DCARDQUERY we try again one more time (According to securtrading tech support)
+          case response_code
+            when 1 # ONE -> 3D AUTH required
+              rewrite_request_block # Rewrite the request block with information from the response, deleting unused items
 
-          # If the card is enrolled in the scheme a redirect to a 3D Secure server is necessary, for this we need to store the request_xml in the database to be retrieved after the callback from the 3D secure Server and used to initialize a new payment object
-          # otherwise, if the card is not enrolled we just do a 3D AUTH straight away
-          if REXML::XPath.first(@response_xml, "//Enrolled").text == "Y"
+              # If the card is enrolled in the scheme a redirect to a 3D Secure server is necessary, for this we need to store the request_xml in the database to be retrieved after the callback from the 3D secure Server and used to initialize a new payment object
+              # otherwise, if the card is not enrolled we just do a 3D AUTH straight away
+              if REXML::XPath.first(@response_xml, "//Enrolled").text == "Y"
 
-            #card is enrolled, set @three_secure instance variable
-            @three_secure = {:md => REXML::XPath.first(@response_xml, "//MD").text, :pareq => REXML::XPath.first(@response_xml, "//PaReq").text, :termurl => REXML::XPath.first(@response_xml, "//TermUrl").text, :acsurl =>  REXML::XPath.first(@response_xml, "//AcsUrl").text}
+                #card is enrolled, set @three_secure instance variable
+                @three_secure = {:md => REXML::XPath.first(@response_xml, "//MD").text, :pareq => REXML::XPath.first(@response_xml, "//PaReq").text, :termurl => REXML::XPath.first(@response_xml, "//TermUrl").text, :acsurl =>  REXML::XPath.first(@response_xml, "//AcsUrl").text}
 
-            #create XpayTransaction object to be recalled after gateway callback, identified by md
-            xt = Xpay::XpayTransaction.create(:md => @three_secure[:md], :request_block => @request_xml)
+                #create XpayTransaction object to be recalled after gateway callback, identified by md
+                xt = Xpay::XpayTransaction.create(:md => @three_secure[:md], :request_block => @request_xml)
 
-          else
+              else
 
-            # The Card is not enrolled and we do a 3D Auth request without going through a 3D Secure Server
-            # The PaRes element is required but empty as we did not go through a 3D Secure Server
-            threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
-            pares = threedsecure.add_element("PaRes")
-            pares.text = ""
-            @response_xml = Xpay.xpay(@request_xml)
+                # The Card is not enrolled and we do a 3D Auth request without going through a 3D Secure Server
+                # The PaRes element is required but empty as we did not go through a 3D Secure Server
+                threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
+                pares = threedsecure.add_element("PaRes")
+                pares.text = ""
+                @response_xml = Xpay.xpay(@request_xml)
 
+              end
+            when 2 # TWO -> do a normal AUTH request
+              rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
+              @response_xml = Xpay.xpay(@request_xml)
+            else # ALL other cases, payment declined
+              # TODO add some result structure as hash to give access to response information in hash format
           end
-        when 2 # TWO -> do a normal AUTH request
-          rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
+        when "AUTH" #standard AUTH request, recurring payments with transaction verifier usually
           @response_xml = Xpay.xpay(@request_xml)
-        else # ALL other cases, payment declined
-          # TODO add some result structure as hash to give access to response information in hash format
-        end
-      when "AUTH" #standard AUTH request, recurring payments with transaction verifier usually
-        @response_xml = Xpay.xpay(@request_xml)
       end
     end
 
@@ -175,9 +217,10 @@ module Xpay
     def callback_process_payment
       @response_xml = Xpay.xpay(@request_xml)
     end
+
     #rewrites the request xml after a ST3DCARDQUERY according to the response code
     def rewrite_request_block(auth_type="ST3DAUTH")
-      
+
       REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type #sets the required auth type
 
       # delete term url and merchant name
@@ -236,6 +279,7 @@ module Xpay
         ptr.text = block[:parent_transaction_reference]
       end
     end
+
     def set_customer(block)
       # Root element for all customer info
       cus = @request_xml.root.elements["Request"].elements["CustomerInfo"]
@@ -259,7 +303,7 @@ module Xpay
       block[:middlename].blank? ? name.delete_element("MiddleName") : name.elements["MiddleName"].text = block[:middlename]
       name.elements["LastName"].text = block[:lastname]
       block[:namesuffix].blank? ? name.delete_element("NameSuffix") : name.elements["NameSuffix"].text = block[:namesuffix]
-      
+
       # Address and Company name
       block[:company_name].blank? ? postal.delete_element("Company") : postal.elements["Company"].text = block[:company_name]
       block[:street].blank? ? postal.delete_element("Street") : postal.elements["Street"].text = block[:street]
@@ -276,6 +320,7 @@ module Xpay
       online_info = cus.elements["Online"]
       block[:email].blank? ? cus.delete_element("Online") : online_info.elements["Email"].text = block[:email]
     end
+
     def set_operation(block)
       # Operation block root
       ops = @request_xml.root.elements["Request"].elements["Operation"]
@@ -292,7 +337,7 @@ module Xpay
       end
 
       # Order information
-      # this is a seperate block in the xml but for the sake of reduced complexity I've included it in the operation hash
+      # this is a separate block in the xml but for the sake of reduced complexity I've included it in the operation hash
       order_info = @request_xml.root.elements["Request"].elements["Order"]
       order_info.elements["OrderReference"].text = block[:order_ref]
       order_info.elements["OrderInformation"].text = block[:order_info]
