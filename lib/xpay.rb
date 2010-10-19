@@ -2,6 +2,9 @@ require 'rexml/document'
 include REXML
 
 require 'xpay/configuration'
+require 'xpay/transaction'
+require 'xpay/payment'
+
 module Xpay
   @xpay_config = {}
   @xpay_xml = {}
@@ -34,22 +37,8 @@ module Xpay
       @xpay_xml
     end
     
-    # Here the actual work happens, xml supplied is written to the socket, repsone block is returned
-    def xpay(request_block)
-      # adding the certificate as last step before writing it to the socket, this way it will not be stored by accident in the case of 3DAUTH
-      r_block = add_certificate(request_block)
 
-      # open the socket and write to it, wait for response, read it, close the port
-      # TODO adding port as option to yaml file, investigate option of different host
-      a = TCPSocket.open("localhost",5000)
-      a.write(r_block.to_s)
-      res = a.read()
-      a.close
-      # create an xml document, use everything from the start of <ResponseBlock to the end, discard header and status etc and return it
-      return REXML::Document.new res[res.index("<ResponseBlock"), res.length]
-    end
-
-    # Test data for a succesfull none 3DSecure transaction
+    # Test data for a successful none 3DSecure transaction
     def test_data
       cc = {:type => "Visa", :number => "4111111111111111", :securitycode => "123", :expirydate => "05/10"}
       operation = {:amount => 1000, :currency => "USD", :termurl => "http://localhost/gateway_callback"}
@@ -68,7 +57,7 @@ module Xpay
       mycert.chomp
     end
   end
-  class Payment
+  class Payment_old
     @request_xml = REXML::Document # Request XML document, copied as instance variable from Xpay template on Class init
     @response_xml = REXML::Document # Response XML document, received from secure trading
     @three_secure = {} # 3D Secure information hash, used for redirecting to 3D Secure server in form
@@ -79,7 +68,7 @@ module Xpay
         # 3D Secure call back happens as a POST, assign the params transmitted to the instance variable
         @three_secure = options[:three_secure]
         if xt = Xpay::XpayTransaction.find_by_md(@three_secure[:MD])
-          # Delete the transcation straigh away to avoid problems with browser refresh, maybe worthwile to explore modifying the record and lock it instead
+          # Delete the transaction straight away to avoid problems with browser refresh, maybe worthwile to explore modifying the record and lock it instead
           PendingTraXpay::XpayTransaction.delete(xt)
 
           # Assign the xml stored in the table to the instance variable

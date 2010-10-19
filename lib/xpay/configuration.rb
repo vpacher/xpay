@@ -4,10 +4,12 @@ require 'ostruct'
 module Xpay
   class Configuration
     include Singleton
+    attr_accessor :app_root
     attr_reader :environment, :configuration
 
     def initialize(app_root = Dir.pwd)
-      @configuration = OpenStruct.new
+      self.app_root = RAILS_ROOT if defined?(RAILS_ROOT)
+      #self.configuration = OpenStruct.new
       self.port = 5000
       parse_config
     end
