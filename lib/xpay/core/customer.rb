@@ -5,10 +5,9 @@ module Xpay
                   :phone, :email
 
     def add_to_xml(doc)
-      op = REXML::XPath.first(doc, "//Operation")
+      op = REXML::XPath.first(doc, "//Request")
       op.delete_element "CustomerInfo"
       ci = op.add_element "CustomerInfo"
-
       postal = ci.add_element("Postal")
       name = postal.add_element("Name")
       name.text = self.fullname if self.fullname

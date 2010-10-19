@@ -28,7 +28,7 @@ task :release => :build do
   sh "git tag v#{Xpay::Version}"
   sh "git push origin master"
   sh "git push origin v#{Xpay::Version}"
-  sh "gem push xpay-#{Xpay::Version}.gem"
+  sh "gem push ./pkg/xpay-#{Xpay::Version}.gem"
 end
 desc "Open an irb session preloaded with this library"
 task :console do
