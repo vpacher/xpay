@@ -21,6 +21,7 @@ GEM
     rspec-mocks (2.0.0)
       rspec-core (= 2.0.0)
       rspec-expectations (= 2.0.0)
+    shoulda (2.11.3)
 
 PLATFORMS
   ruby
@@ -30,4 +31,5 @@ DEPENDENCIES
   log_buddy
   mocha
   rspec (>= 2.0.0)
+  shoulda
   xpay!

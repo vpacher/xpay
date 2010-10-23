@@ -1,0 +1,13 @@
+class_test:
+  card_type: Visa
+  number: 4111111111111111
+  security_code: 123
+  valid_from: "0110"
+  valid_until: "0510"
+  issue: "1"
+
+visa_no3d_auth:
+  card_type: Visa
+  number: 4111111111111111
+  security_code: 123
+  valid_until: <%= Date.today.advance(:months => 3).strftime("%m%y") %>

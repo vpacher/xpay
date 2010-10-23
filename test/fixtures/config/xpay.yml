@@ -1,0 +1,25 @@
+# config/xpay.yml
+base: &base
+  port: 5000
+  merchant_name: Outlet Residential
+
+development:
+  <<: *base
+  alias: testoutlet12091
+  site_reference: testoutlet12091
+  version: "3.52"
+  port: 6000
+  callback_url: "http://127.0.0.1/callback"
+  default_query:  "AUTH"
+  settlement_day: "2"
+  default_currency: "USD"
+
+test:
+  <<: *base
+  alias: testoutlet12091
+  site_reference: testoutlet12091
+
+production:
+  <<: *base
+  alias: accommodationoutlet2538
+  site_reference: accommodationoutlet2538

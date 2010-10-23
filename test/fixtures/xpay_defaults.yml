@@ -1,0 +1,21 @@
+default:
+  merchant_name: CompanyName
+  version: "3.51"
+  alias: site12345
+  site_reference: site12345
+  port: 5000
+  callback_url: "http://localhost/gateway_callback"
+  default_query:  "ST3DCARDQUERY"
+  settlement_day: "1"
+  default_currency: "GBP"
+
+config_load_test:
+  merchant_name: Outlet Residential
+  alias: testoutlet12091
+  site_reference: testoutlet12091
+  version: "3.52"
+  port: 6000
+  callback_url: "http://127.0.0.1/callback"
+  default_query:  "AUTH"
+  settlement_day: "2"
+  default_currency: "USD"

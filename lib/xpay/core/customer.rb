@@ -2,7 +2,12 @@ module Xpay
   class Customer
     attr_accessor :title, :fullname, :firstname, :lastname, :middlename, :namesuffix, :companyname,
                   :street, :city, :stateprovince, :postcode, :countrycode,
-                  :phone, :email
+                  :phone, :email,
+                  :http_accept, :user_agent
+
+    def initialize(options={})
+      options.each { |key, value| self.send("#{key}=", value) if self.respond_to? key } if (!options.nil? && options.is_a?(Hash))
+    end
 
     def add_to_xml(doc)
       op = REXML::XPath.first(doc, "//Request")
@@ -24,7 +29,8 @@ module Xpay
       postal.add_element("CountryCode").add_text(self.countrycode) if self.countrycode
       ci.add_element("Telecom").add_element("Phone").add_text(self.phone) if self.phone
       ci.add_element("Online").add_element("Email").add_text(self.email) if self.email
-      return doc
+      ci.add_element("Accept").add_text(self.http_accept) if self.http_accept
+      ci.add_element("UserAgent").add_text(self.user_agent) if self.user_agent
     end
   end
 end

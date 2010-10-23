@@ -1,13 +1,14 @@
 require 'rexml/document'
 require 'rexml/xmldecl'
 require 'ostruct'
-
+require 'erb'
 require 'xpay/transaction'
 
 module Xpay
   autoload :Payment, 'xpay/payment'
   autoload :CreditCard, 'xpay/core/creditcard'
   autoload :Customer, 'xpay/core/customer'
+  autoload :Operation, 'xpay/core/operation'
   #include REXML
 
 
@@ -28,7 +29,7 @@ module Xpay
                                         "version" => "3.51",
                                         "alias" => "site12345",
                                         "site_reference" => "site12345",
-                                        "port" => "5000",
+                                        "port" => 5000,
                                         "callback_url" => "http://localhost/gateway_callback",
                                         "default_query" => "ST3DCARDQUERY",
                                         "settlement_day" => "1",
@@ -41,24 +42,23 @@ module Xpay
       self.app_root = (RAILS_ROOT if defined?(RAILS_ROOT)) || app_root
       self.environment = (RAILS_ENV if defined?(RAILS_ENV)) || "development"
       parse_config
+      return true
     end
 
-    def parse_config
-      path = "#{app_root}/config/xpay.yml"
-      return unless File.exists?(path)
-      conf = YAML::load(ERB.new(IO.read(path)).result)[environment]
-      self.set_config(conf)
-    end
 
     def root_xml
       @request_xml ||= create_root_xml
+    end
+
+    def root_to_s
+      self.root_xml.to_s
     end
 
     def create_root_xml
       r = REXML::Document.new
       r << REXML::XMLDecl.new("1.0", "iso-8859-1")
       rb = r.add_element "RequestBlock", {"Version" => config.version}
-      request = rb.add_element "Request", {"Type" => config.version}
+      request = rb.add_element "Request", {"Type" => config.default_query}
       operation = request.add_element "Operation"
       site_ref = operation.add_element "SiteReference"
       site_ref.text = config.site_reference
@@ -81,15 +81,15 @@ module Xpay
       conf.each do |key, value|
         @xpay_config.send("#{key}=", value) if @xpay_config.respond_to? key
       end
+      return true
     end
 
-
-    # Test data for a successful none 3DSecure transaction
-    def test_data
-      cc = {:type => "Visa", :number => "4111111111111111", :securitycode => "123", :expirydate => "05/10"}
-      operation = {:amount => 1000, :currency => "USD", :termurl => "http://localhost/gateway_callback"}
-      customer = {:firstname => "Joe", :lastname => "Bloggs"}
-      return {:operation => operation, :customer => customer, :creditcard => cc}
+    protected
+    def parse_config
+      path = "#{app_root}/config/xpay.yml"
+      return unless File.exists?(path)
+      conf = YAML::load(ERB.new(IO.read(path)).result)[environment]
+      self.set_config(conf)
     end
 
   end

@@ -5,10 +5,13 @@ require 'bundler'
 
 require File.expand_path('../lib/xpay/version', __FILE__)
 
+
 namespace :test do
   Rake::TestTask.new(:all) do |test|
     test.libs << 'lib' << 'test'
-    test.pattern   = 'test/{functional,unit}/**/test_*.rb'
+    test.ruby_opts << '-rubygems'
+    test.pattern   = 'test/**/*_test.rb'
+    test.verbose = true
   end
 end
 task :default => :test
