@@ -4,6 +4,7 @@ class CustomerTest < Test::Unit::TestCase
   context "a customer instance" do
     setup do
       @cus = Xpay::Customer.new(customer("class_test"))
+      @request_xml = REXML::Document.new(Xpay.root_to_s)
     end
     should "have a title" do
       assert_equal @cus.title, "MR"
@@ -53,6 +54,10 @@ class CustomerTest < Test::Unit::TestCase
     should "have a user_agent" do
       assert_equal @cus.user_agent, "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; GTB5; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506; InfoPath.1; .NET4.0C; AskTbGLSV5/5.8.0.12304)"
     end
-
+    should "create a xml document according to xpay spec" do
+      @cus.add_to_xml(@request_xml)
+      assert_equal(@request_xml.root.to_s, customer_xml_string)
+    end
   end
+
 end

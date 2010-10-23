@@ -14,10 +14,12 @@ end
 def customer(which)
   conf = YAML::load(ERB.new(IO.read(File.expand_path(File.dirname(__FILE__) + '/fixtures/customer.yml'))).result)[which]
 end
+def customer_xml_string
+  x = REXML::Document.new(File.open(File.expand_path(File.dirname(__FILE__) + '/fixtures/customer.xml'))).root.to_s
+end
 
 def root_xml_string
-  x = REXML::Document.new(File.expand_path(File.dirname(__FILE__) + '/fixtures/root_xml.txt'))
-#  x = File.open(File.expand_path(File.dirname(__FILE__) + '/fixtures/root_xml.txt')).read
+  x = REXML::Document.new(File.open(File.expand_path(File.dirname(__FILE__) + '/fixtures/root.xml'))).root.to_s
 end
 
 def xpay_config(which)

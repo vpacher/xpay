@@ -20,6 +20,5 @@ class CreditCardTest < Test::Unit::TestCase
     should "have an issue number" do
       assert_equal @cc.issue, "1"
     end
-
 end
 end
