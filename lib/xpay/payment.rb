@@ -1,18 +1,21 @@
 module Xpay
   class Payment < Transaction
-    attr_accessor :credit_card, :customer, :operation
+    attr_accessor :creditcard, :customer, :operation
 
     def initialize(options={})
       @request_xml = REXML::Document.new(Xpay.root_to_s)
-      self.credit_card = options["cc"].is_a?(Hash) ? Xpay::CreditCard.new(options["cc"]) : options["cc"]
-      self.customer = options["cus"].is_a?(Hash) ? Xpay::Customer.new(options["cus"]) : options["cus"]
-      self.operation = options["ops"].is_a?(Hash) ? Xpay::Operation.new(options["ops"]) : options["ops"]
-      create_from_xml(options("xml")) if options("xml")
+      options.each do |key, value|
+        key=key.to_sym
+      end
+      self.creditcard = options[:creditcard].is_a?(Hash) ? Xpay::CreditCard.new(options[:creditcard]) : options[:creditcard]
+      self.customer = options[:customer].is_a?(Hash) ? Xpay::Customer.new(options[:customer]) : options[:customer]
+      self.operation = options[:operation].is_a?(Hash) ? Xpay::Operation.new(options[:operation]) : options[:operation]
+      create_from_xml(options[:xml]) if options[:xml]
       create_request
     end
 
     def create_request
-      self.credit_card.add_to_xml(@request_xml) if self.credit_card.respond_to?(:add_to_xml)
+      self.creditcard.add_to_xml(@request_xml) if self.creditcard.respond_to?(:add_to_xml)
       self.customer.add_to_xml(@request_xml) if self.customer.respond_to?(:add_to_xml)
       self.operation.add_to_xml(@request_xml) if self.operation.respond_to?(:add_to_xml)
     end
@@ -26,7 +29,7 @@ module Xpay
       @response_xml = self.process()
       if request_method=="ST3DCARDQUERY"
         # In case the request was a ST3DCARDQUERY (the default case) the further processing depends on the respones. If it was an AUTH request than all is done and the response_xml gets processed
-        @response_xml = Xpay.xpay(@request_xml) if response_code==0 # try once more if the response code is ZERO in ST3DCARDQUERY (According to securtrading tech support)
+        @response_xml = self.process() if response_code==0 # try once more if the response code is ZERO in ST3DCARDQUERY (According to securtrading tech support)
         case response_code
           when 1 # one means -> 3D AUTH required
             rewrite_request_block # Rewrite the request block with information from the response, deleting unused items
@@ -50,7 +53,7 @@ module Xpay
             end
           when 2 # TWO -> do a normal AUTH request
             rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
-            @response_xml = Xpay.xpay(@request_xml)
+            @response_xml = self.process()
           else # ALL other cases, payment declined
             # TODO add some result structure as hash to give access to response information in hash format
         end
