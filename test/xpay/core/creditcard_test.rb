@@ -12,10 +12,10 @@ class CreditCardTest < Test::Unit::TestCase
       assert_equal @cc.number, "xxxxxxxxxxxx1111"
     end
     should "have an expiry date" do
-      assert_equal @cc.valid_until, "0510"
+      assert_equal @cc.valid_until, "05/10"
     end
     should "have an start date" do
-      assert_equal @cc.valid_from, "0110"
+      assert_equal @cc.valid_from, "01/10"
     end
     should "have an issue number" do
       assert_equal @cc.issue, "1"

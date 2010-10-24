@@ -9,3 +9,15 @@ class_test:
   merchant_name: TestMerchant
   order_reference: TestOrder1245
   order_info: TestOrderInfo
+  port: 7000
+
+test_1:
+  auth_type: ST3DCARDQUERY
+  currency: GBP
+  amount: "1000"
+  settlement_day: "1"
+  site_reference: testoutlet12092
+  site_alias: testoutlet12092
+  callback_url: "https://localhost/3dcallback"
+  merchant_name: Outlet Residential
+  order_reference: TestOrder1245
