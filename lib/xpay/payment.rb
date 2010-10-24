@@ -8,13 +8,13 @@ module Xpay
   # Option 1: pass as hash options = {:creditcard => {}, :customer => {}, :operation => {}}
   # in this case if the hash key is present and new CreditCard, Customer and Operation instance will be created from each hash and assigned to the class attributes
   #
-  # Option 2: pass as Class instances of XPay::CreditCard, Xpay::Customer and Xpay::Operation
+  # Option 2: pass as Class instances of Xpay::CreditCard, Xpay::Customer and Xpay::Operation
   # simply assigns it to class attributes
   #
   # Option 3: create with emtpy hash and use attribute accessors
   # both as class and hash are possible
   #
-  # It is not necessary to use the inbuilt classes XPay::CreditCard, Xpay::Customer and Xpay::Operation,
+  # It is not necessary to use the inbuilt classes Xpay::CreditCard, Xpay::Customer and Xpay::Operation,
   # you can use your own classes (for example if you have an active_record CreditCard class.
   # In this case your class(es) needs to implement a .add_to_xml method (best to copy the code from the gem classes)
   #

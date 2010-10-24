@@ -1,7 +1,4 @@
 module Xpay
-  class Operation
-    attr_accessor :auth_type, :currency, :settlement_day, :callback_url, :site_reference, :site_alias, :merchant_name,
-                  :order_reference, :order_info
 
   # The following attribute is required for each operation:
   # amount -> supplied either as String or Integer, must be in Base i.e.: 10.99 becomes 1099
@@ -17,6 +14,11 @@ module Xpay
   # The following attributes are entirely optional
   # order_reference: Your internal order reference
   # order_info: Additional info about this order/transaction
+
+  class Operation
+
+    attr_accessor :auth_type, :currency, :settlement_day, :callback_url, :site_reference, :site_alias, :merchant_name,
+                  :order_reference, :order_info
 
     def initialize(options={})
       if !options.nil? && options.is_a?(Hash)

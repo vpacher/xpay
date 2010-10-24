@@ -5,11 +5,6 @@ require 'erb'
 require 'xpay/transaction'
 
 module Xpay
-  autoload :Payment, 'xpay/payment'
-  autoload :CreditCard, 'xpay/core/creditcard'
-  autoload :Customer, 'xpay/core/customer'
-  autoload :Operation, 'xpay/core/operation'
-
   # These are the default settings. You can change them by placing YAML file into config/xpay.yml with settings for each environment.
   # Alternatively you can change the settings by calling the config setter for each attribute for example:
   # Xpay.config.alias = "your_new_alias"
@@ -23,6 +18,11 @@ module Xpay
   # default_query:  ST3DCARDQUERY      'defaults to 3D Card query if not otherwise specified'
   # settlement_day: 1                  'this needs to be a String'
   # default_currency: GBP
+
+  autoload :Payment, 'xpay/payment'
+  autoload :CreditCard, 'xpay/core/creditcard'
+  autoload :Customer, 'xpay/core/customer'
+  autoload :Operation, 'xpay/core/operation'
 
   @xpay_config = OpenStruct.new({
                                         "merchant_name" => "CompanyName",

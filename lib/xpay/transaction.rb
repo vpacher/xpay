@@ -1,12 +1,14 @@
 module Xpay
   require 'socket'
+
+  # The transaction class is the parent class of all Transactions be it Payment, Refund or Paypal etc.
+  # it provides underlying methods which all transactions have in common
+  # It should not be instantiated by itself
+
   class Transaction
+
     attr_accessor :request_xml
     attr_reader :response_xml, :three_secure
-
-    # The transaction class is the parent class of all Transaction be it Payment, Refund or Paypal etc.
-    # it provides underlying methods which all transactions have in common
-    # It should not be instantiated by itself
 
     def process()
       a = TCPSocket.open("localhost", Xpay.config.port)
