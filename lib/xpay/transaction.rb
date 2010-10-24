@@ -3,6 +3,11 @@ module Xpay
     attr_accessor :request_xml
     attr_reader :response_xml, :three_secure
 
+
+    # The transaction class is the parent class of all Transaction be it Payment, Refund or Paypal etc.
+    # it provides underlying methods which all transactions have in common
+    # It should not be instantiated by itself
+
     def process()
       a = TCPSocket.open("localhost", 5000)
       a.write(self.request_xml.to_s)
@@ -13,7 +18,7 @@ module Xpay
     end
 
     def request_method
-      @request_method ||= REXML::XPath.first(@request_xml, "//Request").attributes["Type"] rescue "not set"
+      @request_method ||= REXML::XPath.first(@request_xml, "//Request").attributes["Type"]
     end
 
     def response_code
