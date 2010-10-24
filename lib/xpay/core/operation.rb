@@ -17,7 +17,6 @@ module Xpay
   # The following attributes are entirely optional
   # order_reference: Your internal order reference
   # order_info: Additional info about this order/transaction
-  # Another option is to call Xpay.set_config with a hash containing the attributes you want to change
 
     def initialize(options={})
       if !options.nil? && options.is_a?(Hash)

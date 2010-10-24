@@ -5,6 +5,14 @@ module Xpay
                   :phone, :email,
                   :http_accept, :user_agent
 
+  # The customer is not required for a transaction except for 3D secure transactions in which case 
+  # http_accept and user_agent are required for ST3DCARDQUERY
+  #
+  # All other fields are optional and also depend on your security policy with SecureTrading
+  #
+  # A further note:
+  # fullname and firstname + lastname are different and end up in different places in the final xml. You can supply fullname as it appears on the card.
+
     def initialize(options={})
       options.each { |key, value| self.send("#{key}=", value) if self.respond_to? key } if (!options.nil? && options.is_a?(Hash))
     end
