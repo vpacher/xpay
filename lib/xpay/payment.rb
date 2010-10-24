@@ -60,6 +60,22 @@ module Xpay
 
     end
 
+    # the make_payment method is where all the action is happening
+    # call it after you have initalized the Xpay::Payment class
+    # the following returns are possible:
+    #
+    # -1 a 3D Secure Authorisation is required, query your payment instance e.g. p.three_secure
+    # this will return a hash with all the necessary information to process the request further
+    # TODO provide further documentation for three_secure response block
+    #
+    # 0 Error in processing settlement request
+    # query your instance e.g. p.response_block for further information
+    #
+    # 1 Settlement request approved
+    # query your instance e.g. p.response_block for further information
+    #
+    # 2 Settlement request declined
+    # query your instance e.g. p.response_block for further information
 
     def make_payment
       @response_xml = self.process()
@@ -75,8 +91,13 @@ module Xpay
             if REXML::XPath.first(@response_xml, "//Enrolled").text == "Y"
 
               #card is enrolled, set @three_secure instance variable
-              @three_secure = {:md => REXML::XPath.first(@response_xml, "//MD").text, :pareq => REXML::XPath.first(@response_xml, "//PaReq").text, :termurl => REXML::XPath.first(@response_xml, "//TermUrl").text, :acsurl =>  REXML::XPath.first(@response_xml, "//AcsUrl").text}
-
+              @three_secure = {:md => REXML::XPath.first(@response_xml, "//MD").text,
+                               :pareq => REXML::XPath.first(@response_xml, "//PaReq").text,
+                               :termurl => REXML::XPath.first(@response_xml, "//TermUrl").text,
+                               :acsurl =>  REXML::XPath.first(@response_xml, "//AcsUrl").text,
+                               :html =>  REXML::XPath.first(@response_xml, "//Html").text,
+              }
+              rt = -1
             else
 
               # The Card is not enrolled and we do a 3D Auth request without going through a 3D Secure Server
@@ -85,32 +106,40 @@ module Xpay
               pares = threedsecure.add_element("PaRes")
               pares.text = ""
               @response_xml = self.process()
-
+              rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
             end
           when 2 # TWO -> do a normal AUTH request
             rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
             @response_xml = self.process()
+            rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
           else # ALL other cases, payment declined
-            # TODO add some result structure as hash to give access to response information in hash format
+            rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
         end
       end
-      return REXML::XPath.first(@response_xml, "//Result").text.to_i
-      #return response_code
+      return rt
     end
 
     def response_block
-      rh = {}
-      rh[:result_code] = REXML::XPath.first(@response_xml, "//Result").text.to_i
-      rh[:security_code_response] = REXML::XPath.first(@response_xml, "//SecurityResponseSecurityCode").text.to_i rescue nil
-      rh[:transaction_reference] = REXML::XPath.first(@response_xml, "//TransactionReference").text rescue nil
-      rh[:transaction_time] = REXML::XPath.first(@response_xml, "//TransactionCompletedTimestamp").text rescue nil
-      rh[:auth_code] = REXML::XPath.first(@response_xml, "//AuthCode").text rescue nil
-      rh[:settlement_status] = REXML::XPath.first(@response_xml, "//SettleStatus").text.to_i rescue nil
-      return rh
+      @response_block ||= create_response_block
     end
 
     private
 
+    def create_response_block
+      rh = {:result_code => (REXML::XPath.first(@response_xml, "//Result").text.to_i rescue 0),
+      }
+      rh[:result_code] = REXML::XPath.first(@response_xml, "//Result").text.to_i rescue 0
+      rh[:security_response_code] = REXML::XPath.first(@response_xml, "//SecurityResponseSecurityCode").text.to_i rescue nil
+      rh[:security_response_postcode] = REXML::XPath.first(@response_xml, "//SecurityResponsePostCode").text.to_i rescue nil
+      rh[:security_response_address] = REXML::XPath.first(@response_xml, "//SecurityResponseAddress").text.to_i rescue nil
+      rh[:transaction_reference] = REXML::XPath.first(@response_xml, "//TransactionReference").text rescue nil
+      rh[:transactionverifier] = REXML::XPath.first(@response_xml, "//TransactionVerifier").text rescue nil
+      rh[:transaction_time] = REXML::XPath.first(@response_xml, "//TransactionCompletedTimestamp").text rescue nil
+      rh[:auth_code] = REXML::XPath.first(@response_xml, "//AuthCode").text rescue nil
+      rh[:settlement_status] = REXML::XPath.first(@response_xml, "//SettleStatus").text.to_i rescue nil
+      rh[:error_code] = REXML::XPath.first(@response_xml, "//Message").text rescue nil
+      return rh
+    end
     # Method is called when it is a gateway callback, this is for future compatibility and easier code than writing additional logic to distinguish between normal auth and gateway callback auth
     def callback_process_payment
       @response_xml = Xpay.xpay(@request_xml)

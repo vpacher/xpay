@@ -1,0 +1,9 @@
+<ResponseBlock Live='FALSE' Version='3.51'>
+  <Response Type='ST3DCARDQUERY'>
+    <OperationResponse>
+      <Message>(3100) Invalid ExpiryDate</Message>
+      <TransactionReference>17-9-1908322</TransactionReference>
+      <Result>0</Result>
+    </OperationResponse>
+  </Response>
+</ResponseBlock>

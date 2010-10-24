@@ -21,6 +21,12 @@ visa_no3d_decl:
   card_type: Visa
   number: 4242424242424242
 
+visa_3d_auth:
+  <<: *base
+  card_type: Visa
+  number: 4111111111111160
+  valid_until: "11/10"
+
 master_no3d_auth:
   <<: *base
   card_type: Mastercard

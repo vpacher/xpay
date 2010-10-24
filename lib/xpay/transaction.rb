@@ -7,8 +7,8 @@ module Xpay
 
   class Transaction
 
-    attr_accessor :request_xml
-    attr_reader :response_xml, :three_secure
+    attr_accessor :request_xml, :response_xml, :response_block
+    attr_reader :three_secure
 
     def process()
       a = TCPSocket.open("localhost", Xpay.config.port)
