@@ -1,17 +1,52 @@
 module Xpay
+
+  # Payment Class handles all payment transaction AUTH, ST3DCARDQUERY and ST3DAUTH, also repeat transactions with ParentTransactionReference
+  # instantiated with p = Xpay::Payment.new(options)
+  # options is a Hash of the form keys creditcard, customer and operation
+  # there are several different options:
+  #
+  # Option 1: pass as hash options = {:creditcard => {}, :customer => {}, :operation => {}}
+  # in this case if the hash key is present and new CreditCard, Customer and Operation instance will be created from each hash and assigned to the class attributes
+  #
+  # Option 2: pass as Class instances of XPay::CreditCard, Xpay::Customer and Xpay::Operation
+  # simply assigns it to class attributes
+  #
+  # Option 3: create with emtpy hash and use attribute accessors
+  # both as class and hash are possible
+  #
+  # It is not necessary to use the inbuilt classes XPay::CreditCard, Xpay::Customer and Xpay::Operation,
+  # you can use your own classes (for example if you have an active_record CreditCard class.
+  # In this case your class(es) needs to implement a .add_to_xml method (best to copy the code from the gem classes)
+  #
+  # After initalization call the .make_payment method to process the payment
+  # return codes are as follows:
+
+
   class Payment < Transaction
-    attr_accessor :creditcard, :customer, :operation
+    attr_reader :creditcard, :customer, :operation
 
     def initialize(options={})
       @request_xml = REXML::Document.new(Xpay.root_to_s)
       options.each do |key, value|
         key=key.to_sym
       end
-      self.creditcard = options[:creditcard].is_a?(Hash) ? Xpay::CreditCard.new(options[:creditcard]) : options[:creditcard]
+      self.creditcard = options[:creditcard] #.is_a?(Hash) ? Xpay::CreditCard.new(options[:creditcard]) : options[:creditcard]
       self.customer = options[:customer].is_a?(Hash) ? Xpay::Customer.new(options[:customer]) : options[:customer]
       self.operation = options[:operation].is_a?(Hash) ? Xpay::Operation.new(options[:operation]) : options[:operation]
       create_from_xml(options[:xml]) if options[:xml]
       create_request
+    end
+
+    def creditcard=(v)
+      @creditcard = v.is_a?(Hash) ? Xpay::CreditCard.new(v) : v
+    end
+
+    def customer=(v)
+      @customer = v.is_a?(Hash) ? Xpay::Customer.new(v) : v
+    end
+
+    def operation=(v)
+      @operation = v.is_a?(Hash) ? Xpay::Operation.new(v) : v
     end
 
     def create_request
@@ -48,7 +83,7 @@ module Xpay
               threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
               pares = threedsecure.add_element("PaRes")
               pares.text = ""
-              @response_xml = Xpay.xpay(@request_xml)
+              @response_xml = self.process()
 
             end
           when 2 # TWO -> do a normal AUTH request
