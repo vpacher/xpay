@@ -1,7 +1,8 @@
 module Xpay
   class Operation
-    attr_accessor :auth_type, :currency, :settlement_day, :callback_url, :site_reference, :merchant_name,
+    attr_accessor :auth_type, :currency, :settlement_day, :callback_url, :site_reference, :site_alias, :merchant_name,
                   :order_reference, :order_info
+# TODO add accessor site alias
 
     def initialize(options={})
       if !options.nil? && options.is_a?(Hash)
@@ -14,7 +15,7 @@ module Xpay
     def add_to_xml(doc)
       req = REXML::XPath.first(doc, "//Request")
       req.attributes["Type"] = self.auth_type if self.auth_type
-      REXML::XPath.first(doc, "//SiteReference").text(self.site_reference) if self.site_reference
+      REXML::XPath.first(doc, "//SiteReference").text = self.site_reference if self.site_reference
       ops = REXML::XPath.first(doc, "//Operation")
       (ops.elements["Amount"] || ops.add_element("Amount")).text = self.amount if self.amount
       (ops.elements["Currency"] || ops.add_element("Currency")).text = self.currency if self.currency
@@ -26,6 +27,8 @@ module Xpay
         order.add_element("OrderReference").add_text(self.order_reference) if self.order_reference
         order.add_element("OrderInformation").add_text(self.order_info) if self.order_info
       end
+      root = doc.root
+      (root.elements["Certificate"] || root.add_element("Certificate")).text = self.site_alias if self.site_alias
     end
 
     def amount=(new_val)

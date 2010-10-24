@@ -18,6 +18,13 @@ def customer_xml_string
   x = REXML::Document.new(File.open(File.expand_path(File.dirname(__FILE__) + '/fixtures/customer.xml'))).root.to_s
 end
 
+def operation(which)
+  conf = YAML::load(ERB.new(IO.read(File.expand_path(File.dirname(__FILE__) + '/fixtures/operation.yml'))).result)[which]
+end
+def operation_xml_string
+  x = REXML::Document.new(File.open(File.expand_path(File.dirname(__FILE__) + '/fixtures/operation.xml'))).root.to_s
+end
+
 def root_xml_string
   x = REXML::Document.new(File.open(File.expand_path(File.dirname(__FILE__) + '/fixtures/root.xml'))).root.to_s
 end

@@ -1,0 +1,11 @@
+class_test:
+  auth_type: AUTH
+  currency: USD
+  amount: "1000"
+  settlement_day: "3"
+  callback_url: "https://localhost/3dcallback"
+  site_reference: site56987
+  site_alias: site56987
+  merchant_name: TestMerchant
+  order_reference: TestOrder1245
+  order_info: TestOrderInfo

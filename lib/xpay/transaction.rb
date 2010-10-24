@@ -13,11 +13,11 @@ module Xpay
     end
 
     def request_method
-      @request_method ||= REXML::XPath.first(@request_xml, "//Request").attributes["Type"]
+      @request_method ||= REXML::XPath.first(@request_xml, "//Request").attributes["Type"] rescue "not set"
     end
 
     def response_code
-      @response_code ||= REXML::XPath.first(@response_xml, "//Result").text.to_i
+      @response_code ||= REXML::XPath.first(@response_xml, "//Result").text.to_i rescue -1
     end
 
   end
