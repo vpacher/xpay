@@ -30,6 +30,7 @@ module Xpay
         case response_code
           when 1 # one means -> 3D AUTH required
             rewrite_request_block # Rewrite the request block with information from the response, deleting unused items
+
             # If the card is enrolled in the scheme a redirect to a 3D Secure server is necessary, for this we need to store the request_xml in the database to be retrieved after the callback from the 3D secure Server and used to initialize a new payment object
             # otherwise, if the card is not enrolled we just do a 3D AUTH straight away
             if REXML::XPath.first(@response_xml, "//Enrolled").text == "Y"
@@ -58,21 +59,28 @@ module Xpay
     end
   end
 
+
+  # Rewrites the request according to the response coming from SecureTrading according to the required auth_type
+  # This only applies if the inital request was a ST3DCARDQUERY
+  # It deletes elements which are not needed for the subsequent request and
+  # adds the required additional information if an ST3DAUTH is needed
   def rewrite_request_block(auth_type="ST3DAUTH")
 
-    REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type #sets the required auth type
+    # set the required AUTH type
+    REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type
 
     # delete term url and merchant name
     op = REXML::XPath.first(@request_xml, "//Operation")
     op.delete_element "TermUrl"
     op.delete_element "MerchantName"
 
-    #delete accept and user agent in customer info
+    # delete accept and user agent in customer info
     customer_info = REXML::XPath.first(@request_xml, "//CustomerInfo")
     customer_info.delete_element "//Accept"
     customer_info.delete_element "//UserAgent"
 
-    #delete credit card details and add TransactionVerifier and TransactionReference from response xml
+    # delete credit card details and add TransactionVerifier and TransactionReference from response xml
+    # CC details are not needed anymore as verifier and reference are sufficient
     cc_details = REXML::XPath.first(@request_xml, "//CreditCard")
     cc_details.delete_element "//Number"
     cc_details.delete_element "//Type"
@@ -81,7 +89,7 @@ module Xpay
     trans_ref = cc_details.add_element("ParentTransactionReference")
     trans_ref.text = REXML::XPath.first(@response_xml, "//TransactionReference").text
 
-    #unless it is an AUTH request, add additional required info for 3DAUTH
+    # unless it is an AUTH request, add additional required info for a 3DAUTH request
     unless auth_type == "AUTH"
       pm_method = REXML::XPath.first(@request_xml, "//PaymentMethod")
       threedsecure = pm_method.add_element("ThreeDSecure")
