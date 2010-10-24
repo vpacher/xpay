@@ -9,19 +9,19 @@ module Xpay
   autoload :CreditCard, 'xpay/core/creditcard'
   autoload :Customer, 'xpay/core/customer'
   autoload :Operation, 'xpay/core/operation'
-  #include REXML
 
-
-  # Here are the default settings. You can change them by placing YAML file into config/xpay.yml with settings for each environment.
-  # Alternatively you can change the settings by calling the config setter
+  # These are the default settings. You can change them by placing YAML file into config/xpay.yml with settings for each environment.
+  # Alternatively you can change the settings by calling the config setter for each attribute for example:
+  # Xpay.config.alias = "your_new_alias"
+  # Another option is to call Xpay.set_config with a hash containing the attributes you want to change
   #
   # merchant_name:  CompanyName
-  # version:        3.51              'this is the only supported version at the moment and has to be 3.51'
+  # version:        3.51              'this is the only supported version at the moment and has to be 3.51, as String'
   # alias:          site12345
   # site_reference: site12345
-  # port:           5000
+  # port:           5000               'this needs to be an Integer'
   # default_query:  ST3DCARDQUERY      'defaults to 3D Card query if not otherwise specified'
-  # settlement_day: 1
+  # settlement_day: 1                  'this needs to be a String'
   # default_currency: GBP
 
   @xpay_config = OpenStruct.new({

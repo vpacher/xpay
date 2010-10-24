@@ -2,7 +2,22 @@ module Xpay
   class Operation
     attr_accessor :auth_type, :currency, :settlement_day, :callback_url, :site_reference, :site_alias, :merchant_name,
                   :order_reference, :order_info
-# TODO add accessor site alias
+
+  # The following attribute is required for each operation:
+  # amount -> supplied either as String or Integer, must be in Base i.e.: 10.99 becomes 1099
+  #
+  # The following attributes are taken from the default config and can be overridden here for this request only:
+  # auth_type: defaults to the module default. Options are: AUTH, ST3DCARDQUERY, AUTHREVERSAL,REFUND,REFUNDREVERSAL, SETTLEMENT
+  # currency: defaults to module default. Override with approved currencies
+  # settlement day:
+  # callback_url: Specify the callback url for the callback from the 3D secure server. (Will be the bank that issued the card usually)
+  # site_reference and site_alias: are usually the same. Override the default setting for this request
+  # merchant_name: same as above
+  #
+  # The following attributes are entirely optional
+  # order_reference: Your internal order reference
+  # order_info: Additional info about this order/transaction
+  # Another option is to call Xpay.set_config with a hash containing the attributes you want to change
 
     def initialize(options={})
       if !options.nil? && options.is_a?(Hash)
