@@ -27,9 +27,6 @@ module Xpay
 
     def initialize(options={})
       @request_xml = REXML::Document.new(Xpay.root_to_s)
-      options.each do |key, value|
-        key=key.to_sym
-      end
       self.creditcard = options[:creditcard] #.is_a?(Hash) ? Xpay::CreditCard.new(options[:creditcard]) : options[:creditcard]
       self.customer = options[:customer].is_a?(Hash) ? Xpay::Customer.new(options[:customer]) : options[:customer]
       self.operation = options[:operation].is_a?(Hash) ? Xpay::Operation.new(options[:operation]) : options[:operation]
