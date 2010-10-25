@@ -30,7 +30,7 @@ module Xpay
       self.creditcard = options[:creditcard] #.is_a?(Hash) ? Xpay::CreditCard.new(options[:creditcard]) : options[:creditcard]
       self.customer = options[:customer].is_a?(Hash) ? Xpay::Customer.new(options[:customer]) : options[:customer]
       self.operation = options[:operation].is_a?(Hash) ? Xpay::Operation.new(options[:operation]) : options[:operation]
-      create_from_xml(options[:xml]) if options[:xml]
+      create_from_xml(options[:xml], options[:pares] || nil) if options[:xml]
       create_request
     end
 
@@ -128,9 +128,11 @@ module Xpay
       self.operation.add_to_xml(@request_xml) if self.operation.respond_to?(:add_to_xml)
     end
 
-    #TODO function to create classes (Customer, CreditCard and Operation) from xml request
-    def create_from_xml(xml)
-
+    #TODO function to create classes (Customer, CreditCard and Operation) from xml document
+    def create_from_xml(xml, pares)
+      raise PaResMissing.new "(2500) PaRes argument can not be omitted." if pares.nil?
+      @request_xml = REXML::Document.new xml
+      REXML::XPath.first(@request_xml, "//ThreeDSecure").add_element("PaRes").text=pares
     end
 
     def create_response_block
@@ -157,13 +159,8 @@ module Xpay
                       :termurl => (REXML::XPath.first(@response_xml, "//TermUrl").text rescue nil),
                       :acsurl =>  (REXML::XPath.first(@response_xml, "//AcsUrl").text rescue nil),
                       :html =>  (REXML::XPath.first(@response_xml, "//Html").text rescue nil),
-                      :request_xml => (@response_xml.to_s rescue nil)
+                      :request_xml => (@request_xml.to_s rescue nil)
               } : {}
-    end
-
-    # Method is called when it is a gateway callback, this is for future compatibility and easier code than writing additional logic to distinguish between normal auth and gateway callback auth
-    def callback_process_payment
-      #@response_xml = Xpay.xpay(@request_xml)
     end
 
     # Rewrites the request according to the response coming from SecureTrading according to the required auth_type
@@ -204,7 +201,7 @@ module Xpay
         md = threedsecure.add_element("MD")
         md.text = REXML::XPath.first(@response_xml, "//MD").text rescue ""
       end
-
+      true
     end
   end
 end

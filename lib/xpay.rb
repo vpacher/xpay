@@ -35,6 +35,18 @@ module Xpay
                                         "settlement_day" => "1",
                                         "default_currency" => "GBP"
                                 })
+  class XpayError < StandardError
+    attr_reader :data
+
+    def initialize(data)
+      @data = data
+      super
+    end
+  end
+
+  class PaResMissing      < XpayError; end
+  class General           < XpayError; end
+
   class << self
     attr_accessor :app_root, :environment
 
