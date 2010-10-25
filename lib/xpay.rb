@@ -54,6 +54,26 @@ module Xpay
       self.root_xml.to_s
     end
 
+
+    def config
+      @xpay_config
+    end
+
+    def set_config(conf)
+      conf.each do |key, value|
+        @xpay_config.send("#{key}=", value) if @xpay_config.respond_to? key
+      end
+      return true
+    end
+
+    private
+    def parse_config
+      path = "#{app_root}/config/xpay.yml"
+      return unless File.exists?(path)
+      conf = YAML::load(ERB.new(IO.read(path)).result)[environment]
+      self.set_config(conf)
+    end
+
     def create_root_xml
       r = REXML::Document.new
       r << REXML::XMLDecl.new("1.0", "iso-8859-1")
@@ -71,25 +91,6 @@ module Xpay
       cer = rb.add_element "Certificate"
       cer.text = config.alias
       return r
-    end
-
-    def config
-      @xpay_config
-    end
-
-    def set_config(conf)
-      conf.each do |key, value|
-        @xpay_config.send("#{key}=", value) if @xpay_config.respond_to? key
-      end
-      return true
-    end
-
-    protected
-    def parse_config
-      path = "#{app_root}/config/xpay.yml"
-      return unless File.exists?(path)
-      conf = YAML::load(ERB.new(IO.read(path)).result)[environment]
-      self.set_config(conf)
     end
 
   end
