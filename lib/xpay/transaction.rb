@@ -16,7 +16,7 @@ module Xpay
       res = a.read()
       a.close
       # create an xml document, use everything from the start of <ResponseBlock to the end, discard header and status etc and return it
-      return REXML::Document.new res[res.index("<ResponseBlock"), res.length]
+      REXML::Document.new res[res.index("<ResponseBlock"), res.length]
     end
 
     def request_method

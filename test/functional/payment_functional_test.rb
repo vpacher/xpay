@@ -60,7 +60,6 @@ class PaymentFunctionTest < Test::Unit::TestCase
       should "return -1 on make_payment" do
         rt = @p.make_payment
         assert_equal -1, rt
-        d { @p.three_secure }
       end
     end
   end

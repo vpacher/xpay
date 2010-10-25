@@ -21,8 +21,11 @@ end
 def operation(which)
   conf = YAML::load(ERB.new(IO.read(File.expand_path(File.dirname(__FILE__) + '/fixtures/operation.yml'))).result)[which]
 end
-def operation_xml_string
-  x = REXML::Document.new(File.open(File.expand_path(File.dirname(__FILE__) + '/fixtures/operation.xml'))).root.to_s
+def operation_xml_string(which="operation")
+  operation_xml(which).root.to_s
+end
+def operation_xml(which="operation")
+  REXML::Document.new(File.open(File.expand_path(File.dirname(__FILE__) + "/fixtures/#{which}.xml")))
 end
 
 def root_xml_string

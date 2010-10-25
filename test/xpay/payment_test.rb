@@ -11,11 +11,11 @@ class PaymentTest < Test::Unit::TestCase
       assert_equal @p.request_xml.root.to_s, Xpay.root_xml.root.to_s
     end
 
-    should "have an response block with return nil" do
+    should "have a response block with return nil" do
       assert @p.response_block.empty?
     end
 
-    should "have an threesecure hash that has only emtpy elements" do
+    should "have a threesecure hash that has only emtpy elements" do
       assert @p.three_secure.empty?
     end
   end
@@ -50,4 +50,19 @@ class PaymentTest < Test::Unit::TestCase
       assert_instance_of(Xpay::CreditCard, @p.creditcard)
     end
   end
+  context "an empty payment instance with set 3D secure response" do
+    setup do
+      @p = Xpay::Payment.new()
+      @p.send("response_xml=", operation_xml("response_3d") )
+    end
+
+    should "have a non-empty hash as a response block" do
+      assert !@p.response_block.empty?
+    end
+
+    should "have a non-empty hash as threesecure block" do
+      assert !@p.three_secure.empty?
+    end
+  end
+
 end
