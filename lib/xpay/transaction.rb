@@ -7,8 +7,8 @@ module Xpay
 
   class Transaction
 
-    attr_accessor :request_xml, :response_xml, :response_block
-    attr_reader :three_secure
+    attr_accessor :request_xml
+    attr_reader :three_secure, :response_xml, :response_block
 
     def process()
       a = TCPSocket.open("localhost", Xpay.config.port)
@@ -27,5 +27,9 @@ module Xpay
       @response_code ||= REXML::XPath.first(@response_xml, "//Result").text.to_i rescue -1
     end
 
+    private
+    def response_xml=(new_val)
+      @response_xml = new_val if new_val.is_a?(REXML::Document)
+    end
   end
 end
