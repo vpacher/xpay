@@ -25,7 +25,10 @@ http://www.securetrading.com/support/xpay.html for futher details, in depth spec
      -first: create the class instance for CreditCard, Customer and Operatioon
 
         CreditCard:
-        cc = Xpay::CreditCard.new(:card_type => "Visa", :number => "4111111111111160", :security_code => "123". :valid_until => "11/11")
+        cc = Xpay::CreditCard.new(:card_type => "Visa",
+                                  :number => "4111111111111160",
+                                  :security_code => "123",
+                                   :valid_until => "11/11")
 
         Customer:
         cus = Xpay::Customer.new(:fullname => "Fred Bloggs")
@@ -50,22 +53,27 @@ http://www.securetrading.com/support/xpay.html for futher details, in depth spec
         rt==-1 A redirection to an 3D-Secure server is necessary.
         All necessary information is contained in p.three_secure
         It has the following keys:
-            :md     a unique reference generated according to the 3D Secure specification (currently up to 1024 bytes in base64 format).
-                    it is passed as parameter in the callback from the 3D-Secure server and you will need to store it to find the transaction on callback
+            :md     a unique reference generated according to the 3D Secure specification
+                    (currently up to 1024 bytes in base64 format).
+                    it is passed as parameter in the callback from the 3D-Secure server
+                    and you will need to store it to find the transaction on callback
 
             :pareq  The pareq contains purchase transaction details upon which ACS authentication decisions are based.
                     If you are making your own customised redirect page instead of using the <Html> provided then this
                     field MUST be included in that html, as a hidden field. The length of the PaReq is not explicitly
-                    defined by the 3-D Secure specification. We recommend allowing at least 4096 bytes for this field in any variables/storage systems.
+                    defined by the 3-D Secure specification. We recommend allowing at least 4096 bytes
+                    for this field in any variables/storage systems.
 
-            :termurl Your own callback url. If you are making your own customised redirect page instead of using the <Html> provided then this field MUST be included in that html as a hidden field.
+            :termurl Your own callback url. If you are making your own customised redirect page
+                     instead of using the <Html> provided then this field MUST be included in that html as a hidden field.
 
             :acsurl  This is the url of the ACS it should be used as the location of the redirect if you use your own form/redirect
 
-            :html   This value contains the complete html code if you don't want to use your own form. This can be achieved by sending your normal server headers to the client immediately followed by
-                    the contents of the <Html> tag.
+            :html   This value contains the complete html code if you don't want to use your own form.
+                    This can be achieved by sending your normal server headers to the client immediately followed by the contents of the <Html> tag.
 
-            :request_xml This is a complete xml document as string that you need to pass to a new payment instance after the callback. You need to store this field for the callback.
+            :request_xml This is a complete xml document as string that you need to pass to a new payment instance after the callback.
+                         You need to store this field for the callback.
 
      -third: after the callback from the 3D Secure Server:
 
