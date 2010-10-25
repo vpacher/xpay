@@ -36,14 +36,17 @@ module Xpay
 
     def creditcard=(v)
       @creditcard = v.is_a?(Hash) ? Xpay::CreditCard.new(v) : v
+      create_request
     end
 
     def customer=(v)
       @customer = v.is_a?(Hash) ? Xpay::Customer.new(v) : v
+      create_request
     end
 
     def operation=(v)
       @operation = v.is_a?(Hash) ? Xpay::Operation.new(v) : v
+      create_request
     end
 
     # the make_payment method is where all the action is happening
@@ -77,7 +80,6 @@ module Xpay
             if REXML::XPath.first(@response_xml, "//Enrolled").text == "Y"
               rt = -1
             else
-
               # The Card is not enrolled and we do a 3D Auth request without going through a 3D Secure Server
               # The PaRes element is required but empty as we did not go through a 3D Secure Server
               threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
@@ -97,6 +99,20 @@ module Xpay
       return rt
     end
 
+    # The response_block is a hash and can have one of several values:
+    # the follwing values are always present after a transaction and can be queried to gain further details of the transaction:
+    #   * result_code:
+    #       0 for failure, check error_code for further details
+    #       1 transaction was succesful
+    #       2 transaction was denied
+    #   * security_response_code
+    #   * security_response_postcode
+    #   * transaction_reference
+    #   * transactionverifier
+    #   * transaction_time
+    #   * auth_code
+    #   * settlement_status
+    #   * error_code
     def response_block
       create_response_block
     end
@@ -140,7 +156,8 @@ module Xpay
                       :pareq => (REXML::XPath.first(@response_xml, "//PaReq").text rescue nil),
                       :termurl => (REXML::XPath.first(@response_xml, "//TermUrl").text rescue nil),
                       :acsurl =>  (REXML::XPath.first(@response_xml, "//AcsUrl").text rescue nil),
-                      :html =>  (REXML::XPath.first(@response_xml, "//Html").text rescue nil)
+                      :html =>  (REXML::XPath.first(@response_xml, "//Html").text rescue nil),
+                      :request_xml => (@response_xml.to_s rescue nil)
               } : {}
     end
 
