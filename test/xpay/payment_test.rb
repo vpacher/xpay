@@ -11,12 +11,12 @@ class PaymentTest < Test::Unit::TestCase
       assert_equal @p.request_xml.root.to_s, Xpay.root_xml.root.to_s
     end
 
-    should "have an response block hash that has only emtpy elements" do
-      @p.response_block.each { |key, value| assert_nil value }
+    should "have an response block with return nil" do
+      assert @p.response_block.empty?
     end
 
     should "have an threesecure hash that has only emtpy elements" do
-      @p.three_secure.each { |key, value| assert_nil value }
+      assert @p.three_secure.empty?
     end
   end
 

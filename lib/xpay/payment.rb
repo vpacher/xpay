@@ -98,11 +98,11 @@ module Xpay
     end
 
     def response_block
-      @response_block ||= create_response_block
+      create_response_block
     end
 
     def three_secure
-      @three_secure ||= create_three_secure
+      create_three_secure
     end
 
     private
@@ -118,32 +118,35 @@ module Xpay
     end
 
     def create_response_block
-      rh = {}
-      rh[:result_code] = REXML::XPath.first(@response_xml, "//Result").text.to_i rescue nil
-      rh[:security_response_code] = REXML::XPath.first(@response_xml, "//SecurityResponseSecurityCode").text.to_i rescue nil
-      rh[:security_response_postcode] = REXML::XPath.first(@response_xml, "//SecurityResponsePostCode").text.to_i rescue nil
-      rh[:security_response_address] = REXML::XPath.first(@response_xml, "//SecurityResponseAddress").text.to_i rescue nil
-      rh[:transaction_reference] = REXML::XPath.first(@response_xml, "//TransactionReference").text rescue nil
-      rh[:transactionverifier] = REXML::XPath.first(@response_xml, "//TransactionVerifier").text rescue nil
-      rh[:transaction_time] = REXML::XPath.first(@response_xml, "//TransactionCompletedTimestamp").text rescue nil
-      rh[:auth_code] = REXML::XPath.first(@response_xml, "//AuthCode").text rescue nil
-      rh[:settlement_status] = REXML::XPath.first(@response_xml, "//SettleStatus").text.to_i rescue nil
-      rh[:error_code] = REXML::XPath.first(@response_xml, "//Message").text rescue nil
-      return rh
+      @response_xml.is_a?(REXML::Document) ?
+              {
+                      :result_code => (REXML::XPath.first(@response_xml, "//Result").text.to_i rescue nil),
+                      :security_response_code => (REXML::XPath.first(@response_xml, "//SecurityResponseSecurityCode").text.to_i rescue nil),
+                      :security_response_postcode => (REXML::XPath.first(@response_xml, "//SecurityResponsePostCode").text.to_i rescue nil),
+                      :security_response_address => (REXML::XPath.first(@response_xml, "//SecurityResponseAddress").text.to_i rescue nil),
+                      :transaction_reference => (REXML::XPath.first(@response_xml, "//TransactionReference").text rescue nil),
+                      :transactionverifier => (REXML::XPath.first(@response_xml, "//TransactionVerifier").text rescue nil),
+                      :transaction_time => (REXML::XPath.first(@response_xml, "//TransactionCompletedTimestamp").text rescue nil),
+                      :auth_code => (REXML::XPath.first(@response_xml, "//AuthCode").text rescue nil),
+                      :settlement_status => (REXML::XPath.first(@response_xml, "//SettleStatus").text.to_i rescue nil),
+                      :error_code => (REXML::XPath.first(@response_xml, "//Message").text rescue nil)
+              } : {}
     end
 
     def create_three_secure
-      {:md => (REXML::XPath.first(@response_xml, "//MD").text rescue nil),
-       :pareq => (REXML::XPath.first(@response_xml, "//PaReq").text rescue nil),
-       :termurl => (REXML::XPath.first(@response_xml, "//TermUrl").text rescue nil),
-       :acsurl =>  (REXML::XPath.first(@response_xml, "//AcsUrl").text rescue nil),
-       :html =>  (REXML::XPath.first(@response_xml, "//Html").text rescue nil)
-      }
+      @response_xml.is_a?(REXML::Document) ?
+              {
+                      :md => (REXML::XPath.first(@response_xml, "//MD").text rescue nil),
+                      :pareq => (REXML::XPath.first(@response_xml, "//PaReq").text rescue nil),
+                      :termurl => (REXML::XPath.first(@response_xml, "//TermUrl").text rescue nil),
+                      :acsurl =>  (REXML::XPath.first(@response_xml, "//AcsUrl").text rescue nil),
+                      :html =>  (REXML::XPath.first(@response_xml, "//Html").text rescue nil)
+              } : {}
     end
 
     # Method is called when it is a gateway callback, this is for future compatibility and easier code than writing additional logic to distinguish between normal auth and gateway callback auth
     def callback_process_payment
-      @response_xml = Xpay.xpay(@request_xml)
+      #@response_xml = Xpay.xpay(@request_xml)
     end
 
     # Rewrites the request according to the response coming from SecureTrading according to the required auth_type
