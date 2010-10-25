@@ -1,0 +1,40 @@
+<ResponseBlock Live='FALSE' Version='3.51'>
+  <Response Type='ST3DCARDQUERY'>
+    <OperationResponse>
+      <TransactionReference>17-9-1909368</TransactionReference>
+      <TransactionCompletedTimestamp>2010-10-25 11:37:16</TransactionCompletedTimestamp>
+      <TransactionVerifier>ArOH5um+qGhwLbuobJ5mdgzTr1qclm1j/qyG+VGDe9QSslGFXtwFA2A6jvM+qgUuZ0lLQPvJ82U1SkLOhm32dPRABlh0EkyrvKamrsDDRcsFZhWQLmS+yE0+keSaBq8C537NQAXIYcCYVvoOVKhDwdW4hZVfOtKFND+QxR2p89rw=</TransactionVerifier>
+      <Result>1</Result>
+      <Enrolled>Y</Enrolled>
+      <Html>&lt;!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01//EN'>
+&lt;HTML>&lt;HEAD>&lt;TITLE>Redirecting...&lt;/TITLE>&lt;META http-equiv='Content-Type' content='text/html; charset=utf-8'>&lt;/HEAD>
+&lt;BODY onload="setTimeout('document.form.submit()','500')">
+&lt;H2>If you are not redirected automatically please click to continue&lt;/H2>
+&lt;FORM name='form' id='form' METHOD='POST' ACTION='https://securetrading.net/secureweb/testacs0.cgi'>
+&lt;P>&lt;INPUT type='hidden' name='PaReq' value='eJxVUstyAiEQvOcrLO86gK81NVJl4iEefJTJDxB2yl2zsgpsYvz6wLqbGC50z0DTNOBbZokWr6Qr
+SxJX5JzaUydPZ93tfEfnHueciel0MEmmY9HrCZYkYjJijHcl1iskfpJ1eWkk77O+QGhpELM6U8ZL
+VPr8tFxLLgbD0RihoXgku1w01UnCbgPhVkajjiQ3lS/Id3bk8pSMz1WBUDdQl5Xx9lsmIii2BCtb
+yMz7k3sEKEqtiqx0HgZpQMW70h8IcQXCn7dtFZELipc8lZvFfrg+zK/r6/5rdVjNHhBiGVPlSfqM
+OhEg1BTVMR4ree26IXiKevP7zn0FQ86WjG59twzpcipNuKEMCf5iTMnp4LaZ/qw+v8RQtQ85Dfn9
+GEcnt0aUzEMmnHFea0aCELdC83LQvHdA//7BDz/HrvY=
+'>
+&lt;INPUT type='hidden' name='TermUrl' value='https://localhost/3dcallback'>
+&lt;INPUT type='hidden' name='MD' value='MTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDExMjg4MDA2NjM2LjUyMC4xNzYzNzMzNzcwMTEyODgwMDY2MzYuNTIwLjE3NjM3MzM3NzAxMTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDExMjg4MDA2NjM2LjUyMC4xNzYzNzMzNzcwMTEyODgwMDY2MzYuNTIwLjE3NjM3MzM3NzAxMTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDExMjg4MDA2NjM2LjUyMC4xNzYzNzMzNzcwMTEyODgwMDY2MzYuNTIwLjE3NjM3MzM3NzAxMTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDE='>
+&lt;INPUT TYPE='submit' VALUE='           Continue              ' SIZE='30'>
+&lt;/P>&lt;/FORM>&lt;/BODY>&lt;/HTML></Html>
+      <MD>MTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDExMjg4MDA2NjM2LjUyMC4xNzYzNzMzNzcwMTEyODgwMDY2MzYuNTIwLjE3NjM3MzM3NzAxMTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDExMjg4MDA2NjM2LjUyMC4xNzYzNzMzNzcwMTEyODgwMDY2MzYuNTIwLjE3NjM3MzM3NzAxMTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDExMjg4MDA2NjM2LjUyMC4xNzYzNzMzNzcwMTEyODgwMDY2MzYuNTIwLjE3NjM3MzM3NzAxMTI4ODAwNjYzNi41MjAuMTc2MzczMzc3MDE=</MD>
+      <PaReq>eJxVUstyAiEQvOcrLO86gK81NVJl4iEefJTJDxB2yl2zsgpsYvz6wLqbGC50z0DTNOBbZokWr6Qr
+SxJX5JzaUydPZ93tfEfnHueciel0MEmmY9HrCZYkYjJijHcl1iskfpJ1eWkk77O+QGhpELM6U8ZL
+VPr8tFxLLgbD0RihoXgku1w01UnCbgPhVkajjiQ3lS/Id3bk8pSMz1WBUDdQl5Xx9lsmIii2BCtb
+yMz7k3sEKEqtiqx0HgZpQMW70h8IcQXCn7dtFZELipc8lZvFfrg+zK/r6/5rdVjNHhBiGVPlSfqM
+OhEg1BTVMR4ree26IXiKevP7zn0FQ86WjG59twzpcipNuKEMCf5iTMnp4LaZ/qw+v8RQtQ85Dfn9
+GEcnt0aUzEMmnHFea0aCELdC83LQvHdA//7BDz/HrvY=
+</PaReq>
+      <TermUrl>https://localhost/3dcallback</TermUrl>
+      <AcsUrl>https://securetrading.net/secureweb/testacs0.cgi</AcsUrl>
+    </OperationResponse>
+    <Order>
+      <OrderReference>TestOrder1245</OrderReference>
+    </Order>
+  </Response>
+</ResponseBlock>

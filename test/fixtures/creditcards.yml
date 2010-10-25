@@ -1,20 +1,20 @@
-class_test:
-  card_type: Visa
-  number: 4111111111111111
-  security_code: 123
-  valid_from: "01/10"
-  valid_until: "05/10"
-  issue: "1"
-
 base: &base
   security_code: 123
   valid_until: <%= Date.today.advance(:months => 3).strftime("%m/%y") %>
+
+class_test:
+  <<: *base
+  card_type: Visa
+  number: 4111111111111111
+  security_code: 123
+  valid_from: <%= Date.today.advance(:months => -5).strftime("%m/%y") %>
+  issue: "1"
+
 
 visa_no3d_auth:
   <<: *base
   card_type: Visa
   number: 4111111111111111
-  valid_until: "11/10"
 
 visa_no3d_decl:
   <<: *base
@@ -25,7 +25,6 @@ visa_3d_auth:
   <<: *base
   card_type: Visa
   number: 4111111111111160
-  valid_until: "11/10"
 
 master_no3d_auth:
   <<: *base
