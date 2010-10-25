@@ -49,17 +49,6 @@ module Xpay
       @operation = v.is_a?(Hash) ? Xpay::Operation.new(v) : v
     end
 
-    def create_request
-      self.creditcard.add_to_xml(@request_xml) if self.creditcard.respond_to?(:add_to_xml)
-      self.customer.add_to_xml(@request_xml) if self.customer.respond_to?(:add_to_xml)
-      self.operation.add_to_xml(@request_xml) if self.operation.respond_to?(:add_to_xml)
-    end
-
-    #TODO function to create classes (Customer, CreditCard and Operation) from xml request
-    def create_from_xml(xml)
-
-    end
-
     # the make_payment method is where all the action is happening
     # call it after you have initalized the Xpay::Payment class
     # the following returns are possible:
@@ -124,6 +113,16 @@ module Xpay
     end
 
     private
+    def create_request
+      self.creditcard.add_to_xml(@request_xml) if self.creditcard.respond_to?(:add_to_xml)
+      self.customer.add_to_xml(@request_xml) if self.customer.respond_to?(:add_to_xml)
+      self.operation.add_to_xml(@request_xml) if self.operation.respond_to?(:add_to_xml)
+    end
+
+    #TODO function to create classes (Customer, CreditCard and Operation) from xml request
+    def create_from_xml(xml)
+
+    end
 
     def create_response_block
       rh = {:result_code => (REXML::XPath.first(@response_xml, "//Result").text.to_i rescue 0),
@@ -140,6 +139,7 @@ module Xpay
       rh[:error_code] = REXML::XPath.first(@response_xml, "//Message").text rescue nil
       return rh
     end
+
     # Method is called when it is a gateway callback, this is for future compatibility and easier code than writing additional logic to distinguish between normal auth and gateway callback auth
     def callback_process_payment
       @response_xml = Xpay.xpay(@request_xml)
