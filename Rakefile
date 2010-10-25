@@ -13,6 +13,18 @@ namespace :test do
     test.pattern   = 'test/**/*_test.rb'
     test.verbose = true
   end
+  Rake::TestTask.new(:unit) do |test|
+    test.libs << 'lib' << 'test'
+    test.ruby_opts << '-rubygems'
+    test.pattern   = 'test/xpay/**/*_test.rb'
+    test.verbose = true
+  end
+  Rake::TestTask.new(:functional) do |test|
+    test.libs << 'lib' << 'test'
+    test.ruby_opts << '-rubygems'
+    test.pattern   = 'test/functional/*_test.rb'
+    test.verbose = true
+  end
 end
 task :default => :test
 
