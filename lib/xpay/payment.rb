@@ -75,14 +75,6 @@ module Xpay
             # If the card is enrolled in the scheme a redirect to a 3D Secure server is necessary, for this we need to store the request_xml in the database to be retrieved after the callback from the 3D secure Server and used to initialize a new payment object
             # otherwise, if the card is not enrolled we just do a 3D AUTH straight away
             if REXML::XPath.first(@response_xml, "//Enrolled").text == "Y"
-
-              #card is enrolled, set @three_secure instance variable
-              @three_secure = {:md => REXML::XPath.first(@response_xml, "//MD").text,
-                               :pareq => REXML::XPath.first(@response_xml, "//PaReq").text,
-                               :termurl => REXML::XPath.first(@response_xml, "//TermUrl").text,
-                               :acsurl =>  REXML::XPath.first(@response_xml, "//AcsUrl").text,
-                               :html =>  REXML::XPath.first(@response_xml, "//Html").text,
-              }
               rt = -1
             else
 
@@ -109,6 +101,10 @@ module Xpay
       @response_block ||= create_response_block
     end
 
+    def three_secure
+      @three_secure ||= create_three_secure
+    end
+
     private
     def create_request
       self.creditcard.add_to_xml(@request_xml) if self.creditcard.respond_to?(:add_to_xml)
@@ -122,9 +118,8 @@ module Xpay
     end
 
     def create_response_block
-      rh = {:result_code => (REXML::XPath.first(@response_xml, "//Result").text.to_i rescue 0),
-      }
-      rh[:result_code] = REXML::XPath.first(@response_xml, "//Result").text.to_i rescue 0
+      rh = {}
+      rh[:result_code] = REXML::XPath.first(@response_xml, "//Result").text.to_i rescue nil
       rh[:security_response_code] = REXML::XPath.first(@response_xml, "//SecurityResponseSecurityCode").text.to_i rescue nil
       rh[:security_response_postcode] = REXML::XPath.first(@response_xml, "//SecurityResponsePostCode").text.to_i rescue nil
       rh[:security_response_address] = REXML::XPath.first(@response_xml, "//SecurityResponseAddress").text.to_i rescue nil
@@ -135,6 +130,15 @@ module Xpay
       rh[:settlement_status] = REXML::XPath.first(@response_xml, "//SettleStatus").text.to_i rescue nil
       rh[:error_code] = REXML::XPath.first(@response_xml, "//Message").text rescue nil
       return rh
+    end
+
+    def create_three_secure
+      {:md => (REXML::XPath.first(@response_xml, "//MD").text rescue nil),
+       :pareq => (REXML::XPath.first(@response_xml, "//PaReq").text rescue nil),
+       :termurl => (REXML::XPath.first(@response_xml, "//TermUrl").text rescue nil),
+       :acsurl =>  (REXML::XPath.first(@response_xml, "//AcsUrl").text rescue nil),
+       :html =>  (REXML::XPath.first(@response_xml, "//Html").text rescue nil)
+      }
     end
 
     # Method is called when it is a gateway callback, this is for future compatibility and easier code than writing additional logic to distinguish between normal auth and gateway callback auth

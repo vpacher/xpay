@@ -6,10 +6,20 @@ class PaymentTest < Test::Unit::TestCase
     setup do
       @p = Xpay::Payment.new()
     end
+
     should "have a the same xml as the module" do
       assert_equal @p.request_xml.root.to_s, Xpay.root_xml.root.to_s
     end
+
+    should "have an response block hash that has only emtpy elements" do
+      @p.response_block.each { |key, value| assert_nil value }
+    end
+
+    should "have an threesecure hash that has only emtpy elements" do
+      @p.three_secure.each { |key, value| assert_nil value }
+    end
   end
+
   context "a payment instance from hashes" do
     setup do
       options = {:creditcard => credit_card("class_test"), :operation => operation("class_test"), :customer => customer("class_test")}
