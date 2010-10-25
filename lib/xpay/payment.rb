@@ -57,13 +57,13 @@ module Xpay
     # this will return a hash with all the necessary information to process the request further
     # TODO provide further documentation for three_secure response block
     #
-    # 0 Error in processing settlement request
+    # 0 Error in processing settlement request,
     # query your instance e.g. p.response_block for further information
     #
-    # 1 Settlement request approved
+    # 1 Settlement request approved,
     # query your instance e.g. p.response_block for further information
     #
-    # 2 Settlement request declined
+    # 2 Settlement request declined,
     # query your instance e.g. p.response_block for further information
 
     def make_payment

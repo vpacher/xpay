@@ -1,2 +1,6 @@
 0.0.1 => 0.0.2
   * established basic structure of the gem, wrote most test and added first functional tests, added fixtures
+
+0.0.1 => 0.0.3
+  * finished all methods necessary to make a succesful transaction
+  * wrote basic documentation for usage
