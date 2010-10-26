@@ -95,6 +95,8 @@ module Xpay
           else # ALL other cases, payment declined
             rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
         end
+      else
+        rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
       end
       return rt
     end
