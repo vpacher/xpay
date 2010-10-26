@@ -189,6 +189,10 @@ module Xpay
       cc_details = REXML::XPath.first(@request_xml, "//CreditCard")
       cc_details.delete_element "//Number"
       cc_details.delete_element "//Type"
+      cc_details.delete_element "//SecurityCode"
+      cc_details.delete_element "//StartDate"
+      cc_details.delete_element "//ExpiryDate"
+      cc_details.delete_element "//Issue"
       trans_ver = cc_details.add_element("TransactionVerifier")
       trans_ver.text = REXML::XPath.first(@response_xml, "//TransactionVerifier").text
       trans_ref = cc_details.add_element("ParentTransactionReference")
