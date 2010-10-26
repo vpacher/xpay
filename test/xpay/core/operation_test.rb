@@ -38,7 +38,7 @@ class OperationTest < Test::Unit::TestCase
     end
     should "create an xml document according to xpay spec" do
       @ops.add_to_xml(@request_xml)
-      assert_equal(@request_xml.root.to_s, operation_xml_string)
+      assert_equal(operation_xml_string, @request_xml.root.to_s)
     end
 
   end
