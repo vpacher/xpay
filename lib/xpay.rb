@@ -94,8 +94,8 @@ module Xpay
       operation = request.add_element "Operation"
       site_ref = operation.add_element "SiteReference"
       site_ref.text = config.site_reference
-      if config.version== "ST3DCARDQUERY"
-        mn = operation.add_element "MerchanteName"
+      if config.default_query == "ST3DCARDQUERY"
+        mn = operation.add_element "MerchantName"
         mn.text = config.merchant_name
         tu = operation.add_element "TermUrl"
         tu.text = config.callback_url
