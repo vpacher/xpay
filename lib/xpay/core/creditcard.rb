@@ -2,6 +2,7 @@ module Xpay
   class CreditCard
     attr_accessor :card_type, :valid_until, :valid_from, :issue, :parent_transaction_ref, :transaction_verifier
     attr_writer :security_code
+
     def initialize(options={})
       if !options.nil? && options.is_a?(Hash)
         options.each do |key, value|
@@ -16,6 +17,10 @@ module Xpay
 
     def number=(new_val)
       @number = new_val.to_s.gsub(/[^0-9]/, "")
+    end
+
+    def issue=(issue)
+      @issue = issue.to_s
     end
 
     def security_code=(new_val)
