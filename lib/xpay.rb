@@ -77,6 +77,7 @@ module Xpay
       conf.each do |key, value|
         @xpay_config.send("#{key}=", value) if @xpay_config.respond_to? key
       end
+      @request_xml = create_root_xml
       return true
     end
 
