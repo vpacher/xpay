@@ -74,7 +74,7 @@ class PaymentTest < Test::Unit::TestCase
     end
     should "have a new request_xml after rewrite" do
       @p.rewrite_request_block
-      assert_equal load_xml_string("request_rewritten"), @p.request_xml.root.to_s
+      assert_equal @p.request_xml.root.to_s, load_xml_string("request_rewritten")
     end
 
     should "have a non-empty hash as a response block" do

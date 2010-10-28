@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'xpay'
+
 class XpayTest < Test::Unit::TestCase
   context "the xpay module" do
     setup do
@@ -11,7 +12,7 @@ class XpayTest < Test::Unit::TestCase
       assert_equal @xpay.config, OpenStruct.new(xpay_config("default"))
     end
     should "have xml document formed to xpay spec" do
-      assert_equal @xpay.root_xml.root.to_s, load_xml_string("root")
+      assert_equal load_xml_string("root"), @xpay.root_xml.root.to_s
     end
     should "load a new config from yaml file" do
       assert @xpay.load_config(File.expand_path(File.dirname(__FILE__)+ '/fixtures'))
@@ -21,6 +22,7 @@ class XpayTest < Test::Unit::TestCase
 
       should "have a new config" do
         assert_equal @xpay.config, OpenStruct.new(xpay_config("config_load_test"))
+        d {@xpay.root_xml.to_s}
       end
 
       should "have an environment" do
