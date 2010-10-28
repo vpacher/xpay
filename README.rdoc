@@ -11,6 +11,8 @@ http://www.securetrading.com/support/xpay.html for futher details, in depth spec
  $ gem install xpay
 
  * configure by either creating a yaml file at config/xpay.yml or call Xpay.set_config with a hash
+ * (make sure to use Xpay.set_config(options_hash) instead of setting the options direct as that would
+ * prevent the new xml from being generated)
  * the following options can be set:
     - merchant_name
     - version
@@ -20,7 +22,7 @@ http://www.securetrading.com/support/xpay.html for futher details, in depth spec
     - callback_url
 
 == Usage
- === An example of a 3D-Secure Transaction
+ * An example of a 3D-Secure Transaction
 
      -first: create the class instance for CreditCard, Customer and Operatioon
 
@@ -93,7 +95,7 @@ http://www.securetrading.com/support/xpay.html for futher details, in depth spec
 
          The possible values of rt are as above.
 
- === more examples to follow
+ * more examples to follow
 
 
 == Copyright
