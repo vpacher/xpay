@@ -97,6 +97,8 @@ module Xpay
       operation = request.add_element "Operation"
       site_ref = operation.add_element "SiteReference"
       site_ref.text = config.site_reference
+      operation.add_element("Currency").text = config.default_currency if config.default_currency 
+      operation.add_element("SettlementDay").text = config.settlement_day if config.settlement_day 
       if config.default_query == "ST3DCARDQUERY"
         mn = operation.add_element "MerchantName"
         mn.text = config.merchant_name
