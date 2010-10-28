@@ -28,6 +28,26 @@ class TransactionQueryTest < Test::Unit::TestCase
     end
   end
 
+  context "a new instance with only a transaction reference" do
+    setup do
+      @t = Xpay::TransactionQuery.new({:transaction_reference => "17-9-1908322"})
+    end
+
+    should "instantiate without error" do
+      assert_instance_of Xpay::TransactionQuery, @t
+    end
+  end
+
+  context "a new instance with only a order reference" do
+    setup do
+      @t = Xpay::TransactionQuery.new({:order_reference => "17-9-1908322"})
+    end
+
+    should "instantiate without error" do
+      assert_instance_of Xpay::TransactionQuery, @t
+    end
+  end
+
   context "a new instance" do
     setup do
       @t = Xpay::TransactionQuery.new({:transaction_reference => "17-9-1908322", :order_reference => "121-1010272211", :site_reference => "site1234"})
@@ -45,6 +65,7 @@ class TransactionQueryTest < Test::Unit::TestCase
       assert @t.respond_to? :transaction_reference
       assert @t.respond_to? :order_reference
       assert @t.respond_to? :site_reference
+      assert @t.respond_to? :site_alias
     end
 
     context "given a response block" do

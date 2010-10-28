@@ -5,7 +5,7 @@ module Xpay
   # either a TransactionReference or your own OrderReference from a previous transaction
   # and your SiteReference if not already set in the config, you can also pass it to overwrite it for this transaction
   class TransactionQuery < Transaction
-    attr_accessor :transaction_reference, :order_reference, :site_reference
+    attr_accessor :transaction_reference, :order_reference, :site_reference, :site_alias
 
     def initialize(options={})
       @request_xml = REXML::Document.new(Xpay.root_to_s)
@@ -16,7 +16,7 @@ module Xpay
     end
 
     def query
-      process()
+      @response_xml = process()
       return response_code
     end
 
@@ -50,6 +50,9 @@ module Xpay
       (ops.elements["TransactionReference"] || ops.add_element("TransactionReference")).text = self.transaction_reference if self.transaction_reference
       order = REXML::XPath.first(@request_xml, "//Operation")
       (order.elements["OrderReference"] || order.add_element("OrderReference")).text = self.order_reference if self.order_reference
+      root = @request_xml.root
+      (root.elements["Certificate"] || root.add_element("Certificate")).text = self.site_alias if self.site_alias
+
     end
 
     def create_response_block
