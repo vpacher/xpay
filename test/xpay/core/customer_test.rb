@@ -56,7 +56,7 @@ class CustomerTest < Test::Unit::TestCase
     end
     should "create a xml document according to xpay spec" do
       @cus.add_to_xml(@request_xml)
-      assert_equal(customer_xml_string, @request_xml.root.to_s)
+      assert_equal(load_xml_string("customer"), @request_xml.root.to_s)
     end
   end
 

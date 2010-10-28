@@ -53,7 +53,7 @@ class PaymentTest < Test::Unit::TestCase
   context "an empty payment instance with set 3D secure response" do
     setup do
       @p = Xpay::Payment.new()
-      @p.send("response_xml=", operation_xml("response_3d"))
+      @p.send("response_xml=", load_xml("response_3d"))
     end
 
     should "have a non-empty hash as a response block" do
@@ -69,12 +69,12 @@ class PaymentTest < Test::Unit::TestCase
       Xpay::Payment.send(:public, *Xpay::Payment.private_instance_methods)
       options = {:creditcard => Xpay::CreditCard.new(credit_card("class_test")), :operation => Xpay::Operation.new(operation("class_test")), :customer => Xpay::Customer.new(customer("class_test"))}
       @p = Xpay::Payment.new(options)
-      @p.send("response_xml=", operation_xml("response_3d"))
+      @p.send("response_xml=", load_xml("response_3d"))
 
     end
     should "have a new request_xml after rewrite" do
       @p.rewrite_request_block
-      assert_equal operation_xml_string("request_rewritten"), @p.request_xml.root.to_s
+      assert_equal load_xml_string("request_rewritten"), @p.request_xml.root.to_s
     end
 
     should "have a non-empty hash as a response block" do
@@ -88,13 +88,13 @@ class PaymentTest < Test::Unit::TestCase
 
   context "a payment instance created from xml without PaRes" do
     should "throw error 2500, PaRes missing" do
-      options = {:xml => operation_xml_string("request_rewritten")}
+      options = {:xml => load_xml_string("request_rewritten")}
       assert_raise(Xpay::PaResMissing) {Xpay::Payment.new(options)}
     end
   end
   context "a payment instance created from xml without PaRes" do
     setup do
-      options = {:xml => operation_xml_string("request_rewritten"), :pares => "ABJASDKA+SDKAJ/SGDSAD"}
+      options = {:xml => load_xml_string("request_rewritten"), :pares => "ABJASDKA+SDKAJ/SGDSAD"}
       @p = Xpay::Payment.new(options)
     end
     should "should have a request_xml document" do

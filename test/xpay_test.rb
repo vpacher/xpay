@@ -11,7 +11,7 @@ class XpayTest < Test::Unit::TestCase
       assert_equal @xpay.config, OpenStruct.new(xpay_config("default"))
     end
     should "have xml document formed to xpay spec" do
-      assert_equal @xpay.root_xml.root.to_s, root_xml_string
+      assert_equal @xpay.root_xml.root.to_s, load_xml_string("root")
     end
     should "load a new config from yaml file" do
       assert @xpay.load_config(File.expand_path(File.dirname(__FILE__)+ '/fixtures'))
