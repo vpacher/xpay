@@ -16,6 +16,7 @@ namespace :test do
   Rake::TestTask.new(:unit) do |test|
     test.libs << 'lib' << 'test'
     test.ruby_opts << '-rubygems'
+    test.test_files = FileList['test/*_test.rb']
     test.pattern   = 'test/xpay/**/*_test.rb'
     test.verbose = true
   end
