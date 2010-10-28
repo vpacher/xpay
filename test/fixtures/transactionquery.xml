@@ -1,0 +1,1 @@
+<RequestBlock Version='3.51'><Request Type='TRANSACTIONQUERY'><Operation><SiteReference>site1234</SiteReference><TransactionReference>17-9-1908322</TransactionReference><OrderReference>121-1010272211</OrderReference></Operation></Request><Certificate>site12345</Certificate></RequestBlock>
