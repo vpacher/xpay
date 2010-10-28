@@ -7,3 +7,11 @@
 
 0.0.3 => 0.0.4
   * bug fixed that prevents loading of MerchantName from config and create root xml
+
+0.0.4 => 0.0.5
+  * bug fix that prevents having a return value on make_payment with non ST3DCARDQUERY as request
+
+0.0.5 => 0.0.6
+  * bug fixed that prevents changing the config via hash
+  * added TransactionQuery as class that allows to query previous transactions
+  * force Issue number into string in CreditCard when given as Integer
