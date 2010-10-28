@@ -8,7 +8,7 @@ class_test:
   number: 4111111111111111
   security_code: 123
   valid_from: <%= Date.today.advance(:months => -5).strftime("%m/%y") %>
-  issue: "1"
+  issue: 1
 
 
 visa_no3d_auth:
