@@ -10,14 +10,6 @@ module Xpay
     attr_accessor :request_xml
     attr_reader :three_secure, :response_xml, :response_block
 
-    def process()
-      a = TCPSocket.open("localhost", Xpay.config.port)
-      a.write(self.request_xml.to_s + "\n")
-      res = a.read()
-      a.close
-      # create an xml document, use everything from the start of <ResponseBlock to the end, discard header and status etc and return it
-      REXML::Document.new res[res.index("<ResponseBlock"), res.length]
-    end
 
     def request_method
       @request_method ||= REXML::XPath.first(@request_xml, "//Request").attributes["Type"]
@@ -28,6 +20,15 @@ module Xpay
     end
 
     private
+    def process()
+      a = TCPSocket.open("localhost", Xpay.config.port)
+      a.write(self.request_xml.to_s + "\n")
+      res = a.read()
+      a.close
+      # create an xml document, use everything from the start of <ResponseBlock to the end, discard header and status etc and return it
+      REXML::Document.new res[res.index("<ResponseBlock"), res.length]
+    end
+
     def response_xml=(new_val)
       @response_xml = new_val if new_val.is_a?(REXML::Document)
     end

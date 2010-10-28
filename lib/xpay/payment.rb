@@ -67,10 +67,10 @@ module Xpay
     # query your instance e.g. p.response_block for further information
 
     def make_payment
-      @response_xml = self.process()
+      @response_xml = process()
       if request_method=="ST3DCARDQUERY"
         # In case the request was a ST3DCARDQUERY (the default case) the further processing depends on the respones. If it was an AUTH request than all is done and the response_xml gets processed
-        @response_xml = self.process() if response_code==0 # try once more if the response code is ZERO in ST3DCARDQUERY (According to securtrading tech support)
+        @response_xml = process() if response_code==0 # try once more if the response code is ZERO in ST3DCARDQUERY (According to securtrading tech support)
         case response_code
           when 1 # one means -> 3D AUTH required
             rewrite_request_block() # Rewrite the request block with information from the response, deleting unused items
@@ -85,12 +85,12 @@ module Xpay
               threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
               pares = threedsecure.add_element("PaRes")
               pares.text = ""
-              @response_xml = self.process()
+              @response_xml = process()
               rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
             end
           when 2 # TWO -> do a normal AUTH request
             rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
-            @response_xml = self.process()
+            @response_xml = process()
             rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
           else # ALL other cases, payment declined
             rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
