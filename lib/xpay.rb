@@ -46,6 +46,7 @@ module Xpay
   end
 
   class PaResMissing      < XpayError; end
+  class AttributeMissing  < XpayError; end
   class General           < XpayError; end
 
   class << self
