@@ -1,0 +1,1 @@
+<?xml version='1.0' encoding='ISO-8859-1'?><RequestBlock Version='3.51'><Request Type='ST3DCARDQUERY'><Operation><SiteReference>site12345</SiteReference><Currency>GBP</Currency><SettlementDay>1</SettlementDay><MerchantName>CompanyName</MerchantName><TermUrl>http://localhost/gateway_callback</TermUrl></Operation></Request><Certificate>site12345</Certificate></RequestBlock>
