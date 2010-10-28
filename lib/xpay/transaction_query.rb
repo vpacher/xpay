@@ -45,7 +45,7 @@ module Xpay
       raise AttributeMissing.new "(2500) SiteReference must be present." if (site_reference.nil? && (REXML::XPath.first(@request_xml, "//SiteReference").text.blank? rescue true))
       REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = "TRANSACTIONQUERY"
       ops = REXML::XPath.first(@request_xml, "//Operation")
-      ["TermUrl", "MerchantName"].each { |e| ops.delete_element e }
+      ["TermUrl", "MerchantName", "Currency", "SettlementDay"].each { |e| ops.delete_element e }
       (ops.elements["SiteReference"] || ops.add_element("SiteReference")).text = self.site_reference if self.site_reference
       (ops.elements["TransactionReference"] || ops.add_element("TransactionReference")).text = self.transaction_reference if self.transaction_reference
       order = REXML::XPath.first(@request_xml, "//Operation")
