@@ -176,36 +176,25 @@ module Xpay
 
       # delete term url and merchant name
       op = REXML::XPath.first(@request_xml, "//Operation")
-      op.delete_element "TermUrl"
-      op.delete_element "MerchantName"
+      ["TermUrl", "MerchantName"].each { |e| op.delete_element e }
 
       # delete accept and user agent in customer info
       customer_info = REXML::XPath.first(@request_xml, "//CustomerInfo")
-      customer_info.delete_element "//Accept"
-      customer_info.delete_element "//UserAgent"
+      ["Accept", "UserAgent"].each { |e| customer_info.delete_element e }
 
       # delete credit card details and add TransactionVerifier and TransactionReference from response xml
       # CC details are not needed anymore as verifier and reference are sufficient
       cc_details = REXML::XPath.first(@request_xml, "//CreditCard")
-      cc_details.delete_element "//Number"
-      cc_details.delete_element "//Type"
-      cc_details.delete_element "//SecurityCode"
-      cc_details.delete_element "//StartDate"
-      cc_details.delete_element "//ExpiryDate"
-      cc_details.delete_element "//Issue"
-      trans_ver = cc_details.add_element("TransactionVerifier")
-      trans_ver.text = REXML::XPath.first(@response_xml, "//TransactionVerifier").text
-      trans_ref = cc_details.add_element("ParentTransactionReference")
-      trans_ref.text = REXML::XPath.first(@response_xml, "//TransactionReference").text
+      ["Number", "Type", "SecurityCode", "StartDate", "ExpiryDate", "Issue"].each { |e| cc_details.delete_element e }
+      cc_details.add_element("TransactionVerifier").text = REXML::XPath.first(@response_xml, "//TransactionVerifier").text
+      cc_details.add_element("ParentTransactionReference").text = REXML::XPath.first(@response_xml, "//TransactionReference").text
 
       # unless it is an AUTH request, add additional required info for a 3DAUTH request
       unless auth_type == "AUTH"
         pm_method = REXML::XPath.first(@request_xml, "//PaymentMethod")
         threedsecure = pm_method.add_element("ThreeDSecure")
-        enrolled = threedsecure.add_element("Enrolled")
-        enrolled.text = REXML::XPath.first(@response_xml, "//Enrolled").text
-        md = threedsecure.add_element("MD")
-        md.text = REXML::XPath.first(@response_xml, "//MD").text rescue ""
+        threedsecure.add_element("Enrolled").text = REXML::XPath.first(@response_xml, "//Enrolled").text
+        threedsecure.add_element("MD").text = REXML::XPath.first(@response_xml, "//MD").text rescue ""
       end
       true
     end
