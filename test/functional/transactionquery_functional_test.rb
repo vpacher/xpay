@@ -15,7 +15,6 @@ class TransactionFunctionalTest < Test::Unit::TestCase
     end
 
     should "create a transaction query" do
-      d { @p.response_block.to_yaml }
       assert_instance_of Xpay::TransactionQuery, @tq
     end
 
