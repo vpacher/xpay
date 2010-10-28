@@ -175,8 +175,8 @@ module Xpay
       REXML::XPath.first(@request_xml, "//Request").attributes["Type"] = auth_type
 
       # delete term url and merchant name
-      op = REXML::XPath.first(@request_xml, "//Operation")
-      ["TermUrl", "MerchantName"].each { |e| op.delete_element e }
+      ops = REXML::XPath.first(@request_xml, "//Operation")
+      ["TermUrl", "MerchantName"].each { |e| ops.delete_element e }
 
       # delete accept and user agent in customer info
       customer_info = REXML::XPath.first(@request_xml, "//CustomerInfo")
