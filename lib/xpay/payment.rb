@@ -86,19 +86,19 @@ module Xpay
               pares = threedsecure.add_element("PaRes")
               pares.text = ""
               @response_xml = process()
-              rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
+              rt = response_code
             end
           when 2 # TWO -> do a normal AUTH request
             rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
             @response_xml = process()
-            rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
+            rt = response_code
           else # ALL other cases, payment declined
-            rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
+            rt = response_code
         end
       else
-        rt = REXML::XPath.first(@response_xml, "//Result").text.to_i
+        rt = response_code
       end
-      return rt
+      rt
     end
 
     # The response_block is a hash and can have one of several values:

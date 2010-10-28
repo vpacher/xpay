@@ -16,7 +16,7 @@ module Xpay
     end
 
     def response_code
-      @response_code ||= REXML::XPath.first(@response_xml, "//Result").text.to_i rescue -1
+      REXML::XPath.first(@response_xml, "//Result").text.to_i rescue nil
     end
 
     private
