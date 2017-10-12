@@ -67,13 +67,13 @@ module Xpay
     # query your instance e.g. p.response_block for further information
 
     def make_payment
-      @response_xml = process()
+      @response_xml = process
       if request_method=="ST3DCARDQUERY"
         # In case the request was a ST3DCARDQUERY (the default case) the further processing depends on the respones. If it was an AUTH request than all is done and the response_xml gets processed
-        @response_xml = process() if response_code==0 # try once more if the response code is ZERO in ST3DCARDQUERY (According to securtrading tech support)
+        @response_xml = process if response_code==0 # try once more if the response code is ZERO in ST3DCARDQUERY (According to securtrading tech support)
         case response_code
           when 1 # one means -> 3D AUTH required
-            rewrite_request_block() # Rewrite the request block with information from the response, deleting unused items
+            rewrite_request_block # Rewrite the request block with information from the response, deleting unused items
 
             # If the card is enrolled in the scheme a redirect to a 3D Secure server is necessary, for this we need to store the request_xml in the database to be retrieved after the callback from the 3D secure Server and used to initialize a new payment object
             # otherwise, if the card is not enrolled we just do a 3D AUTH straight away
@@ -84,13 +84,13 @@ module Xpay
               # The PaRes element is required but empty as we did not go through a 3D Secure Server
               threedsecure = REXML::XPath.first(@request_xml, "//ThreeDSecure")
               pares = threedsecure.add_element("PaRes")
-              pares.text = ""
-              @response_xml = process()
+              pares.text = ''
+              @response_xml = process
               rt = response_code
             end
           when 2 # TWO -> do a normal AUTH request
             rewrite_request_block("AUTH") # Rewrite the request block as AUTH request with information from the response, deleting unused items
-            @response_xml = process()
+            @response_xml = process
             rt = response_code
           else # ALL other cases, payment declined
             rt = response_code

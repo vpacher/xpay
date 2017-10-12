@@ -20,7 +20,7 @@ module Xpay
     end
 
     private
-    def process()
+    def process
       a = TCPSocket.open("localhost", Xpay.config.port)
       a.write(self.request_xml.to_s + "\n")
       res = a.read()
