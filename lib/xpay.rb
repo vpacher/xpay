@@ -56,7 +56,7 @@ module Xpay
       self.app_root = (RAILS_ROOT if defined?(RAILS_ROOT)) || app_root
       self.environment = (RAILS_ENV if defined?(RAILS_ENV)) || "development"
       parse_config
-      return true
+      true
     end
 
 
@@ -68,7 +68,6 @@ module Xpay
       self.root_xml.to_s
     end
 
-
     def config
       @xpay_config
     end
@@ -78,7 +77,7 @@ module Xpay
         @xpay_config.send("#{key}=", value) if @xpay_config.respond_to? key
       end
       @request_xml = create_root_xml
-      return true
+      true
     end
 
     private
@@ -92,7 +91,7 @@ module Xpay
     def create_root_xml
       r = REXML::Document.new
       r << REXML::XMLDecl.new("1.0", "iso-8859-1")
-      rb = r.add_element "RequestBlock", {"Version" => config.version}
+      rb = r.add_element "RequestBlock", { "Version" => config.version}
       request = rb.add_element "Request", {"Type" => config.default_query}
       operation = request.add_element "Operation"
       site_ref = operation.add_element "SiteReference"
@@ -107,7 +106,7 @@ module Xpay
       end
       cer = rb.add_element "Certificate"
       cer.text = config.alias
-      return r
+      r
     end
 
   end

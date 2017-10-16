@@ -73,7 +73,7 @@ RSpec.describe 'PaymentFunction' do
         expect(payment.make_payment).to eq 0
       end
       it "returns '(3100) Invalid ExpiryDate' in response block error code" do
-        p = payment.make_payment
+        payment.make_payment
         expect(payment.response_block[:error_code]).to eq '(3100) Invalid ExpiryDate'
       end
     end

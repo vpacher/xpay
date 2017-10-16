@@ -16,8 +16,8 @@ module Xpay
     end
 
     def query
-      @response_xml = process()
-      return response_code
+      @response_xml = process
+      response_code
     end
 
     # The response_block is a hash and can have one of several values:
