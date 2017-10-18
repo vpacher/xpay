@@ -54,22 +54,16 @@ module Xpay
     private
     def add_ops_element(doc)
       ops = REXML::XPath.first(doc, "//Operation")
-      (ops.elements["Amount"] || ops.add_element("Amount")).text = self.amount if self.amount
-      (ops.elements["Currency"] || ops.add_element("Currency")).text = self.currency if self.currency
-      (ops.elements["MerchantName"] || ops.add_element("MerchantName")).text = self.merchant_name if self.merchant_name
-      (ops.elements["TermUrl"] || ops.add_element("TermUrl")).text = self.callback_url if self.callback_url
+      [["Amount", "amount"], ["Currency", "currency"], ["MerchantName", "merchant_name"], ["TermUrl", "callback_url"]].each do |h|
+        set_ops_element(ops, h[0], h[1])
+      end
       ops
-      # ops = REXML::XPath.first(doc, "//Operation")
-      # [["Amount", "amount"], ["Currency", "currency"], ["MerchantName", "merchant_name"], ["TermUrl", "callback_url"]].each do |h|
-      #   set_ops_element(ops, h[0], h[1])
-      # end
-      # ops
     end
 
-    # def set_ops_element(ops, key, method)
-    #   value = self.send(method)
-    #   (ops.elements[key] || ops.add_element(key)).text = value if value
-    #   ops
-    # end
+    def set_ops_element(ops, key, method)
+      value = self.send(method)
+      (ops.elements[key] || ops.add_element(key)).text = value if value
+      ops
+    end
   end
 end
