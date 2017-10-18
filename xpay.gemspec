@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.files              = Dir.glob("{bin,examples,lib,rails,test}/**/*") + %w[LICENSE UPGRADES README.rdoc] + `git ls-files`.split("\n")
 
   s.add_development_dependency "rake"
+  s.add_development_dependency "pry"
   s.add_development_dependency "activesupport"
   s.add_development_dependency "bundler"
   s.add_development_dependency "rspec"
