@@ -20,7 +20,6 @@ module Xpay
   # default_currency: GBP
 
 
-  autoload :Core, 'xpay/core/core'
   autoload :Payment, 'xpay/payment'
   autoload :TransactionQuery, 'xpay/transaction_query'
   autoload :CreditCard, 'xpay/core/creditcard'
