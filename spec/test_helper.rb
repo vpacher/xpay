@@ -7,6 +7,10 @@ require 'rexml/document'
 require 'Yaml'
 require 'xpay'
 
+require 'simplecov'
+SimpleCov.start
+
+
 def credit_card(which)
   YAML::load(ERB.new(IO.read(File.expand_path(File.dirname(__FILE__) + '/fixtures/creditcards.yml'))).result)[which]
 end

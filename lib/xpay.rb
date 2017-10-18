@@ -19,6 +19,8 @@ module Xpay
   # settlement_day: 1                  'this needs to be a String'
   # default_currency: GBP
 
+
+  autoload :Core, 'xpay/core/core'
   autoload :Payment, 'xpay/payment'
   autoload :TransactionQuery, 'xpay/transaction_query'
   autoload :CreditCard, 'xpay/core/creditcard'
@@ -26,15 +28,15 @@ module Xpay
   autoload :Operation, 'xpay/core/operation'
 
   @xpay_config = OpenStruct.new({
-                                        "merchant_name" => "CompanyName",
-                                        "version" => "3.51",
-                                        "alias" => "site12345",
-                                        "site_reference" => "site12345",
-                                        "port" => 5000,
-                                        "callback_url" => "http://localhost/gateway_callback",
-                                        "default_query" => "ST3DCARDQUERY",
-                                        "settlement_day" => "1",
-                                        "default_currency" => "GBP"
+                                    merchant_name:    "CompanyName",
+                                    version:          "3.51",
+                                    alias:            "site12345",
+                                    site_reference:   "site12345",
+                                    port:             5000,
+                                    callback_url:     "http://localhost/gateway_callback",
+                                    default_query:    "ST3DCARDQUERY",
+                                    settlement_day:   "1",
+                                    default_currency: "GBP"
                                 })
   class XpayError < StandardError
     attr_reader :data
