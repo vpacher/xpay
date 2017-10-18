@@ -19,6 +19,7 @@ module Xpay
   # settlement_day: 1                  'this needs to be a String'
   # default_currency: GBP
 
+
   autoload :Payment, 'xpay/payment'
   autoload :TransactionQuery, 'xpay/transaction_query'
   autoload :CreditCard, 'xpay/core/creditcard'
@@ -26,15 +27,15 @@ module Xpay
   autoload :Operation, 'xpay/core/operation'
 
   @xpay_config = OpenStruct.new({
-                                        "merchant_name" => "CompanyName",
-                                        "version" => "3.51",
-                                        "alias" => "site12345",
-                                        "site_reference" => "site12345",
-                                        "port" => 5000,
-                                        "callback_url" => "http://localhost/gateway_callback",
-                                        "default_query" => "ST3DCARDQUERY",
-                                        "settlement_day" => "1",
-                                        "default_currency" => "GBP"
+                                    merchant_name:    "CompanyName",
+                                    version:          "3.51",
+                                    alias:            "site12345",
+                                    site_reference:   "site12345",
+                                    port:             5000,
+                                    callback_url:     "http://localhost/gateway_callback",
+                                    default_query:    "ST3DCARDQUERY",
+                                    settlement_day:   "1",
+                                    default_currency: "GBP"
                                 })
   class XpayError < StandardError
     attr_reader :data
@@ -56,7 +57,7 @@ module Xpay
       self.app_root = (RAILS_ROOT if defined?(RAILS_ROOT)) || app_root
       self.environment = (RAILS_ENV if defined?(RAILS_ENV)) || "development"
       parse_config
-      return true
+      true
     end
 
 
@@ -68,7 +69,6 @@ module Xpay
       self.root_xml.to_s
     end
 
-
     def config
       @xpay_config
     end
@@ -78,7 +78,7 @@ module Xpay
         @xpay_config.send("#{key}=", value) if @xpay_config.respond_to? key
       end
       @request_xml = create_root_xml
-      return true
+      true
     end
 
     private
@@ -92,7 +92,7 @@ module Xpay
     def create_root_xml
       r = REXML::Document.new
       r << REXML::XMLDecl.new("1.0", "iso-8859-1")
-      rb = r.add_element "RequestBlock", {"Version" => config.version}
+      rb = r.add_element "RequestBlock", { "Version" => config.version}
       request = rb.add_element "Request", {"Type" => config.default_query}
       operation = request.add_element "Operation"
       site_ref = operation.add_element "SiteReference"
@@ -107,7 +107,7 @@ module Xpay
       end
       cer = rb.add_element "Certificate"
       cer.text = config.alias
-      return r
+      r
     end
 
   end

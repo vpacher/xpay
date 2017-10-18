@@ -16,8 +16,8 @@ module Xpay
     end
 
     def query
-      @response_xml = process()
-      return response_code
+      @response_xml = process
+      response_code
     end
 
     # The response_block is a hash and can have one of several values:
@@ -52,21 +52,26 @@ module Xpay
       (order.elements["OrderReference"] || order.add_element("OrderReference")).text = self.order_reference if self.order_reference
       root = @request_xml.root
       (root.elements["Certificate"] || root.add_element("Certificate")).text = self.site_alias if self.site_alias
-
     end
 
     def create_response_block
       @response_xml.is_a?(REXML::Document) ?
               {
-                      :result_code => (REXML::XPath.first(@response_xml, "//Result").text.to_i rescue nil),
-                      :transaction_reference => (REXML::XPath.first(@response_xml, "//TransactionReference").text rescue nil),
-                      :transactionverifier => (REXML::XPath.first(@response_xml, "//TransactionVerifier").text rescue nil),
-                      :transaction_time => (REXML::XPath.first(@response_xml, "//TransactionCompletedTimestamp").text rescue nil),
-                      :auth_code => (REXML::XPath.first(@response_xml, "//AuthCode").text rescue nil),
-                      :amount => (REXML::XPath.first(@response_xml, "//Amount").text.to_i rescue nil),
-                      :order_reference => (REXML::XPath.first(@response_xml, "//OrderReference").text rescue nil),
+                result_code:           get_response_value(@response_xml, '//Result', true),
+                transaction_reference: get_response_value(@response_xml, '//TransactionReference'),
+                transactionverifier:   get_response_value(@response_xml, '//TransactionVerifier'),
+                transaction_time:      get_response_value(@response_xml, '//TransactionCompletedTimestamp'),
+                auth_code:             get_response_value(@response_xml, '//AuthCode'),
+                amount:                get_response_value(@response_xml, '//Amount', true),
+                order_reference:       get_response_value(@response_xml, '//OrderReference')
               } : {}
     end
 
+    def get_response_value(response_xml, xpath, cast_to_i = false)
+      object = REXML::XPath.first(response_xml, xpath)
+      value = object ? object.text : nil
+      value = value.to_i if (value && cast_to_i)
+      value
+    end
   end
 end

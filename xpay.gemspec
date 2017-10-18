@@ -14,10 +14,10 @@ Gem::Specification.new do |s|
   s.rdoc_options       = ["--line-numbers", "--main", "README.rdoc"]
   s.files              = Dir.glob("{bin,examples,lib,rails,test}/**/*") + %w[LICENSE UPGRADES README.rdoc] + `git ls-files`.split("\n")
 
-  s.add_development_dependency "active_support", ">= 3.0.0"
-  s.add_development_dependency "bundler", ">= 1.0.0"
-  s.add_development_dependency "rspec", ">= 2.0.0"
-  s.add_development_dependency "shoulda"
-  s.add_development_dependency 'mocha'
-  s.add_development_dependency 'log_buddy'
+  s.add_development_dependency "rake"
+  s.add_development_dependency "pry"
+  s.add_development_dependency "activesupport"
+  s.add_development_dependency "bundler"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "codecov"
 end
