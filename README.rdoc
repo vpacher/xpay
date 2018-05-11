@@ -30,7 +30,7 @@ http://www.securetrading.com/support/xpay.html for futher details, in depth spec
         cc = Xpay::CreditCard.new(:card_type => "Visa",
                                   :number => "4111111111111160",
                                   :security_code => "123",
-                                   :valid_until => "11/11")
+                                  :valid_until => "11/11")
 
         Customer:
         cus = Xpay::Customer.new(:fullname => "Fred Bloggs")
